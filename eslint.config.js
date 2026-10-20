@@ -5,6 +5,7 @@ import ts from "typescript-eslint";
 import svelte from "eslint-plugin-svelte";
 import prettier from "eslint-config-prettier";
 import globals from "globals";
+import storybook from "eslint-plugin-storybook";
 
 const gitignorePath = fileURLToPath(new URL("./.gitignore", import.meta.url));
 
@@ -36,6 +37,7 @@ export default defineConfig(
       },
     },
   },
+  storybook.configs["flat/recommended"],
   // Must stay last: turns off rules that conflict with Prettier
   prettier,
   svelte.configs.prettier,

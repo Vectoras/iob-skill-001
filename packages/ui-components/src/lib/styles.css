@@ -1,0 +1,8 @@
+/*
+  The stylesheet consumers import: the app's root layout and Storybook's preview.
+  Hello world: the custom property proves it reaches both. Delete it when the real
+  work starts.
+*/
+:root {
+  --hello-world-color: rgb(102, 51, 153);
+}
