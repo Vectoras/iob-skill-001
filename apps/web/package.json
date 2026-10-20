@@ -39,6 +39,8 @@
     "svelte-check": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "shared": "workspace:*",
+    "zod": "catalog:"
   }
 }
