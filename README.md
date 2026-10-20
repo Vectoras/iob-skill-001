@@ -11,3 +11,4 @@ One branch per run, `run/NNN-<slug>`; each has its own `README.md`.
 | 005 | `run/005-defaults` | 2026-10-20 | pass |
 | 006 | `run/006-web-components-node` | 2026-10-20 | pass |
 | 007 | `run/007-defaults` | 2026-10-20 | pass |
+| 008 | `run/008-web-components-node` | 2026-10-20 | pass |
