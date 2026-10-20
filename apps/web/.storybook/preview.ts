@@ -1,4 +1,6 @@
 import type { Preview } from "@storybook/sveltekit";
+// The components' stylesheet, from the UI package: stories bypass the app's layout.
+import "ui-components/styles.css";
 
 const preview: Preview = {
   parameters: {

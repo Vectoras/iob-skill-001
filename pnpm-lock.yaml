@@ -342,6 +342,9 @@ importers:
       playwright:
         specifier: 'catalog:'
         version: 1.64.1
+      shared:
+        specifier: workspace:*
+        version: link:../../packages/shared
       storybook:
         specifier: 'catalog:'
         version: 10.6.2(@types/react@19.3.0)(prettier@3.9.10)(react@19.3.1)
@@ -354,12 +357,18 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
+      ui-components:
+        specifier: workspace:*
+        version: link:../../packages/ui-components
       vite:
         specifier: 'catalog:'
         version: 8.3.4(@types/node@24.19.2)(esbuild@0.28.2)
       vitest:
         specifier: 'catalog:'
         version: 4.1.12(@types/node@24.19.2)(@vitest/browser-playwright@4.1.12)(@vitest/coverage-v8@4.1.12)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2))
+      zod:
+        specifier: 'catalog:'
+        version: 4.6.7
 
   packages/shared:
     dependencies:
