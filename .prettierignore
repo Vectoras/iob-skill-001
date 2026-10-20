@@ -1,5 +1,10 @@
 # Tracked in git, but machine-written; never hand-formatted
 pnpm-lock.yaml
 
+# Written by Go while scripts/check-go-sync.sh runs, and removed again when it exits.
+# The pre-push hook runs that script beside the root format check: Prettier would list
+# the file, then fail to read it once it is gone.
+go.work.sum
+
 # Templates with placeholders: not valid files until filled in
 .claude/skills/add-package/templates/

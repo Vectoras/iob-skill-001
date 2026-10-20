@@ -50,6 +50,12 @@ services:
     environment:
       # Where the end-to-end tests find each frontend app (by service name).
       - WEB_URL=http://web:5180
+      # The web app's env, for the story tests (Vitest) run here. In dev, SvelteKit writes
+      # the values of src/env.ts's variables into apps/web/.svelte-kit/generated/dev/env/,
+      # shared by every process that runs the app's Vite config (web, web-storybook, the
+      # tests here); a process without them overwrites it, and the running web app then
+      # fails every request with env_invalid. Keep these the same as `web`'s.
+      - API_URL=http://api:8090
     command: ["sleep", "infinity"]
 
   # Prepares what the other services need, then keeps it up to date:
@@ -156,6 +162,12 @@ services:
       <<: *build-defaults
     ports:
       - "6006:6006"
+    # The same env as `web`: Storybook runs the app's Vite config, which writes the app's
+    # env into the shared .svelte-kit folder (see `editing`). Without it, starting
+    # Storybook breaks the running web app. Secrets (API_SECRET) as for `web`.
+    environment:
+      - API_URL=http://api:8090
+    env_file: apps/web/.env
     command:
       [
         "./node_modules/.bin/storybook",
