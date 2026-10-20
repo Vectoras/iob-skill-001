@@ -3,6 +3,7 @@ import { defineConfig, includeIgnoreFile } from "eslint/config";
 import js from "@eslint/js";
 import ts from "typescript-eslint";
 import svelte from "eslint-plugin-svelte";
+import storybook from "eslint-plugin-storybook";
 import prettier from "eslint-config-prettier";
 import globals from "globals";
 
@@ -36,6 +37,7 @@ export default defineConfig(
       },
     },
   },
+  storybook.configs["flat/recommended"],
   // Must stay last: turns off rules that conflict with Prettier
   prettier,
   svelte.configs.prettier,
