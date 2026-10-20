@@ -1,0 +1,9 @@
+version: "2"
+
+# The standard set: a starting point, not a limit.
+linters:
+  default: standard
+
+formatters:
+  enable:
+    - gofmt
