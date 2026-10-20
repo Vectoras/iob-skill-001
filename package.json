@@ -33,6 +33,7 @@
     "prettier": "catalog:",
     "prettier-plugin-svelte": "catalog:",
     "turbo": "catalog:",
+    "typescript": "catalog:",
     "typescript-eslint": "catalog:"
   }
 }
