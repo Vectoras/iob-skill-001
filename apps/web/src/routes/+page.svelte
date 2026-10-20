@@ -1,5 +1,15 @@
-<h1>Welcome to SvelteKit</h1>
-<p>
-  Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the
-  documentation
-</p>
+<!--
+  Hello world: the API's message, shown by a component. Delete it when the real work
+  starts.
+-->
+<script lang="ts">
+  import { resolve } from "$app/paths";
+  import { HelloWorld } from "ui-components";
+  import type { PageProps } from "./$types";
+
+  let { data }: PageProps = $props();
+</script>
+
+<h1>hello-007</h1>
+<HelloWorld message={data.helloWorld.message} />
+<p><a href={resolve("/about")}>About</a></p>
