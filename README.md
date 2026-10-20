@@ -8,3 +8,4 @@ One branch per run, `run/NNN-<slug>`; each has its own `README.md`.
 | 002 | `run/002-web-components-node` | 2026-10-20 | fail |
 | 003 | `run/003-defaults` | 2026-10-20 | pass |
 | 004 | `run/004-web-components-node` | 2026-10-20 | pass |
+| 005 | `run/005-defaults` | 2026-10-20 | pass |
