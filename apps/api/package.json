@@ -1,0 +1,14 @@
+{
+  "name": "api",
+  "private": true,
+  "scripts": {
+    "dev:lean": "wgo -xdir tmp go build -o ./tmp/api ./cmd/api :: ./tmp/api",
+    "dev:full": "wgo -xdir tmp go build -gcflags='all=-N -l' -o ./tmp/api ./cmd/api :: dlv exec ./tmp/api --headless --listen=127.0.0.1:2345 --api-version=2 --accept-multiclient --continue",
+    "build": "go build -o ./dist/api ./cmd/api",
+    "lint:fix": "golangci-lint run --fix ./...",
+    "lint:check": "golangci-lint run ./...",
+    "format:fix": "golangci-lint fmt ./... && prettier --write . --ignore-path ../../.gitignore --ignore-path ../../.prettierignore",
+    "format:check": "golangci-lint fmt --diff ./... && prettier --check . --ignore-path ../../.gitignore --ignore-path ../../.prettierignore",
+    "test:unit": "go test ./..."
+  }
+}
