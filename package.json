@@ -22,5 +22,17 @@
       "version": "^12",
       "onFail": "error"
     }
+  },
+  "devDependencies": {
+    "@eslint/js": "catalog:",
+    "eslint": "catalog:",
+    "eslint-config-prettier": "catalog:",
+    "eslint-plugin-svelte": "catalog:",
+    "globals": "catalog:",
+    "lefthook": "catalog:",
+    "prettier": "catalog:",
+    "prettier-plugin-svelte": "catalog:",
+    "turbo": "catalog:",
+    "typescript-eslint": "catalog:"
   }
 }
