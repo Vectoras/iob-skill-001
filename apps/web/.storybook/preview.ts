@@ -1,3 +1,4 @@
+import "ui-components/styles.css";
 import type { Preview } from "@storybook/sveltekit";
 
 const preview: Preview = {
