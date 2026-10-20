@@ -1,0 +1,182 @@
+name: hello-006
+
+# The source of truth for every toolchain version. Exact versions only.
+#
+# These names are a contract: do not rename or remove one without changing every
+# reader in the same commit. A new one is added here first, with its readers.
+#   NODE_VERSION        all.Dockerfile, node.Dockerfile, scripts/check-versions.sh, scripts/update-node-types.sh
+#   OS_RELEASE          all.Dockerfile, go.Dockerfile, node.Dockerfile, scripts/check-versions.sh
+#   PNPM_VERSION        all.Dockerfile, node.Dockerfile, scripts/check-versions.sh, scripts/update-pnpm-version.sh
+#   GO_VERSION          all.Dockerfile, go.Dockerfile, scripts/check-versions.sh, scripts/update-go-version.sh
+#   GOLANGCI_VERSION    all.Dockerfile, scripts/check-versions.sh
+#   PLAYWRIGHT_VERSION  all.Dockerfile. It only picks Chromium's system libraries for OS_RELEASE:
+#                       change it together with OS_RELEASE, not with the catalog's Playwright.
+#   CACHE_DIR           all.Dockerfile, go.Dockerfile
+x-versions-args: &versions-args
+  NODE_VERSION: 24.22.0
+  OS_RELEASE: trixie
+  PNPM_VERSION: 12.14.0
+  GO_VERSION: 1.27.2
+  GOLANGCI_VERSION: 2.15.0
+  PLAYWRIGHT_VERSION: 1.64.1
+  CACHE_DIR: /monorepo/.cache
+
+x-service-defaults: &service-defaults
+  init: true
+  volumes:
+    - ./:/monorepo
+  depends_on:
+    maintenance:
+      condition: service_healthy
+
+x-build-defaults: &build-defaults
+  context: ./
+  args:
+    <<: *versions-args
+
+services:
+  # --- working services ---------------
+
+  # Where the work is done: the editor attaches here, and git, the hooks, manual turbo
+  # runs, end-to-end tests and the debuggers' clients all run here. Has every toolchain,
+  # runs nothing, and waits for nothing, so it can be used even when `maintenance` fails.
+  editing:
+    <<: *service-defaults
+    working_dir: /monorepo
+    build:
+      dockerfile: ./all.Dockerfile
+      <<: *build-defaults
+    depends_on: {}
+    environment:
+      # Where the end-to-end tests find each frontend app (by service name).
+      - WEB_URL=http://web:5180
+      # Each app's variables, for its tests run here: every process that runs an app's
+      # code gets the app's variables (docs/guide.md §3). SvelteKit writes the values of
+      # src/env.ts's variables into .svelte-kit/generated/dev/env/, shared by every process
+      # that runs the app's Vite config (the app, its Storybook, its tests); one run
+      # without them overwrites it, and the running app then fails every request with
+      # env_invalid. Secrets: SvelteKit reads the app's .env itself. Keep these the same
+      # as `web`'s.
+      - API_URL=http://api:8090
+    command: ["sleep", "infinity"]
+
+  # Prepares what the other services need, then keeps it up to date:
+  #   1. installs the dependencies (frozen lockfile: CI=true), builds the Go tools
+  #      (from tools/, outside go.work) and downloads the test browser into .cache/playwright
+  #   2. generates code once (every package with a `generate` script)
+  #   3. marks itself ready: the app services wait for this (see the healthcheck)
+  #   4. stays alive, regenerating when a package with a `generate` script changes
+  maintenance:
+    <<: *service-defaults
+    working_dir: /monorepo
+    build:
+      dockerfile: ./all.Dockerfile
+      <<: *build-defaults
+    depends_on: {}
+    environment:
+      # pnpm would otherwise wait for a terminal to ask in; this service has none.
+      - CI=true
+    # The marker is removed first: a container that is stopped and started keeps its
+    # files, and must not look ready before the steps above have run again.
+    command:
+      [
+        "sh",
+        "-c",
+        "rm -f /tmp/ready && pnpm install && GOWORK=off go -C tools install tool && pnpm --filter web-e2e exec playwright install --only-shell chromium && pnpm turbo run generate && touch /tmp/ready && exec pnpm turbo watch generate",
+      ]
+    # Healthy once the marker exists. Checked every second while starting, so the
+    # app services start as soon as step 3 is reached.
+    healthcheck:
+      test: ["CMD", "test", "-f", "/tmp/ready"]
+      start_period: 10m
+      start_interval: 1s
+      interval: 30s
+      timeout: 2s
+
+  # --- app services --------------------
+
+  # Every app service calls its program directly, with no wrapper process kept alive
+  # (no shell, no `go tool`, no `pnpm run`). wgo comes from $GOPATH/bin, filled by
+  # `maintenance` from the tools module (tools/); the JS programs from the package's
+  # node_modules/.bin.
+  #
+  # KEEP IN STEP: each app's command here is also written as the `dev:lean` script in
+  # the app's package.json (and its full-mode command, in compose.full.yaml, as
+  # `dev:full`); each Storybook's command is also its package's `storybook:dev` script.
+  # Those scripts are for running the repo on the host without Docker. Whenever a
+  # command changes in one place, change it in the other in the same commit. One
+  # intended difference:
+  #   - in `dev:full`, the debuggers listen on 127.0.0.1 only, and the JS apps on a random
+  #     port (`--inspect=0`): on one host, a fixed port would clash between JS apps,
+  #     and 0.0.0.0 would open the debuggers to the local network
+
+  # -xdir tmp: the build writes into tmp/, inside the watched folder. Without the
+  # exclusion the build would trigger the watcher and the server would start twice.
+  api:
+    <<: *service-defaults
+    working_dir: /monorepo/apps/api
+    build:
+      dockerfile: ./go.Dockerfile
+      <<: *build-defaults
+    ports:
+      - "8090:8090"
+    environment:
+      - PORT=8090
+    # Secrets (API_SECRET). Copy .env.example to .env in a fresh clone.
+    env_file: apps/api/.env
+    command:
+      [
+        "wgo",
+        "-xdir",
+        "tmp",
+        "go",
+        "build",
+        "-o",
+        "./tmp/api",
+        "./cmd/api",
+        "::",
+        "./tmp/api",
+      ]
+
+  # Host, port and allowed hosts are in vite.config.ts (every interface; `web` for
+  # the end-to-end tests, which call it by service name).
+  web:
+    <<: *service-defaults
+    working_dir: /monorepo/apps/web
+    build:
+      dockerfile: ./node.Dockerfile
+      <<: *build-defaults
+    ports:
+      - "5180:5180"
+    environment:
+      - API_URL=http://api:8090
+    # Secrets (API_SECRET). Copy .env.example to .env in a fresh clone.
+    env_file: apps/web/.env
+    command: ["./node_modules/.bin/vite", "dev"]
+
+  # Storybook listens on 127.0.0.1 unless told otherwise; --exact-port fails instead
+  # of moving to another port. It runs the app's Vite config, so it gets the app's
+  # variables, the same as `web` (see `editing`): without them, starting Storybook
+  # breaks the running app.
+  web-storybook:
+    <<: *service-defaults
+    working_dir: /monorepo/apps/web
+    build:
+      dockerfile: ./node.Dockerfile
+      <<: *build-defaults
+    ports:
+      - "6006:6006"
+    environment:
+      - API_URL=http://api:8090
+    env_file: apps/web/.env
+    command:
+      [
+        "./node_modules/.bin/storybook",
+        "dev",
+        "-p",
+        "6006",
+        "--host",
+        "0.0.0.0",
+        "--exact-port",
+        "--no-open",
+      ]

@@ -1,0 +1,26 @@
+{
+  "name": "hello-006",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev:lean": "turbo watch generate dev:lean",
+    "dev:full": "turbo watch generate dev:full",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "lint:fix": "turbo run lint:fix",
+    "lint:check": "turbo run lint:check",
+    "format:fix": "turbo run format:fix && pnpm run format:root:fix",
+    "format:check": "turbo run format:check && pnpm run format:root:check",
+    "format:root:fix": "prettier --write . \"!apps\" \"!packages\" \"!e2e\"",
+    "format:root:check": "prettier --check . \"!apps\" \"!packages\" \"!e2e\"",
+    "test:unit": "turbo run test:unit",
+    "test:e2e": "turbo run test:e2e"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "^12",
+      "onFail": "error"
+    }
+  }
+}

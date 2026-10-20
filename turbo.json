@@ -1,0 +1,82 @@
+{
+  "$schema": "./node_modules/turbo/schema.json",
+  "globalPassThroughEnv": [
+    "GOPATH",
+    "GOCACHE",
+    "GOTOOLCHAIN",
+    "PLAYWRIGHT_BROWSERS_PATH"
+  ],
+  "tasks": {
+    "generate": {
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/tools/go.mod"],
+      "outputs": ["generated/**"]
+    },
+    "dev:lean": {
+      "dependsOn": ["^generate"],
+      "persistent": true,
+      "cache": false,
+      "passThroughEnv": ["PORT", "API_URL", "API_SECRET"]
+    },
+    "dev:full": {
+      "dependsOn": ["^generate"],
+      "persistent": true,
+      "cache": false,
+      "passThroughEnv": ["PORT", "API_URL", "API_SECRET"]
+    },
+    "storybook:dev": {
+      "dependsOn": ["^generate"],
+      "persistent": true,
+      "cache": false,
+      "passThroughEnv": ["API_URL", "API_SECRET"]
+    },
+    "storybook:build": {
+      "dependsOn": ["^generate"],
+      "outputs": ["storybook-static/**"]
+    },
+    "build": {
+      "dependsOn": ["^generate"],
+      "outputs": ["dist/**"]
+    },
+    "web#build": {
+      "dependsOn": ["^generate"],
+      "outputs": [".svelte-kit/output/**", "build/**"]
+    },
+    "typecheck": {
+      "dependsOn": ["^generate"],
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/tsconfig.base.json"]
+    },
+    "test:unit": {
+      "dependsOn": ["^generate"],
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/tsconfig.base.json"],
+      "passThroughEnv": ["API_URL", "API_SECRET"]
+    },
+    "test:e2e": {
+      "dependsOn": ["^generate"],
+      "env": ["WEB_URL"]
+    },
+    "lint:fix": {
+      "cache": false
+    },
+    "lint:check": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/eslint.config.js",
+        "$TURBO_ROOT$/.golangci.yml",
+        "$TURBO_ROOT$/.gitignore"
+      ]
+    },
+    "format:fix": {
+      "cache": false
+    },
+    "format:check": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/.prettierrc",
+        "$TURBO_ROOT$/.prettierignore",
+        "$TURBO_ROOT$/.editorconfig",
+        "$TURBO_ROOT$/.golangci.yml",
+        "$TURBO_ROOT$/.gitignore"
+      ]
+    }
+  }
+}
