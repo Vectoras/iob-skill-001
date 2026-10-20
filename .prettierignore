@@ -3,3 +3,8 @@ pnpm-lock.yaml
 
 # Templates with placeholders: not valid files until filled in
 .claude/skills/add-package/templates/
+
+# Written and removed again by scripts/check-go-sync.sh (go list) while it runs. In the
+# pre-push hook it runs beside the root format check, which lists the file and then
+# fails to read it (ENOENT); Prettier has no parser for it anyway.
+go.work.sum

@@ -46,7 +46,8 @@
     },
     "test:unit": {
       "dependsOn": ["^generate"],
-      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/tsconfig.base.json"]
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/tsconfig.base.json"],
+      "passThroughEnv": ["API_URL"]
     },
     "test:e2e": {
       "dependsOn": ["^generate"],

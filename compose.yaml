@@ -50,6 +50,11 @@ services:
     environment:
       # Where the end-to-end tests find each frontend app (by service name).
       - WEB_URL=http://web:5173
+      # The web app's variables, as in its own service: Vitest runs SvelteKit's Vite plugin
+      # in dev mode, which rewrites the env module the running dev server imports
+      # (apps/web/.svelte-kit/generated/dev/env) with the variables of the process that
+      # runs it. Without API_URL here, a test run breaks the running app (env_invalid).
+      - API_URL=http://api:8080
     command: ["sleep", "infinity"]
 
   # Prepares what the other services need, then keeps it up to date:
@@ -156,6 +161,12 @@ services:
       <<: *build-defaults
     ports:
       - "6006:6006"
+    # The web app's non-secret variables, as in its own service: Storybook runs SvelteKit's
+    # Vite plugin, which rewrites the env module the app's dev server imports with this
+    # process's variables (see `editing`). API_SECRET comes from apps/web/.env, which
+    # SvelteKit reads by itself.
+    environment:
+      - API_URL=http://api:8080
     command:
       [
         "./node_modules/.bin/storybook",
