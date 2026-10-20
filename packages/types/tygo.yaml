@@ -1,0 +1,9 @@
+# tygo, run by the `generate` script from this folder: paths resolve from here.
+# The output folder is gitignored and is what the package exports.
+packages:
+  - path: "github.com/Vectoras/iob-skill-001/packages/types"
+    output_path: "./generated"
+    indent: "  "
+    # Types with no direct TS equivalent are mapped explicitly.
+    type_mappings:
+      time.Time: "string /* RFC3339 */"
