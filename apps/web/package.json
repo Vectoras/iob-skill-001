@@ -40,5 +40,10 @@
     "typescript": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:"
+  },
+  "dependencies": {
+    "zod": "catalog:",
+    "shared": "workspace:*",
+    "ui-components": "workspace:*"
   }
 }
