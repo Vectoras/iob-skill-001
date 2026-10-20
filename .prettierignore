@@ -1,0 +1,5 @@
+# Tracked in git, but machine-written; never hand-formatted
+pnpm-lock.yaml
+
+# Templates with placeholders: not valid files until filled in
+.claude/skills/add-package/templates/
