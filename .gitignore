@@ -1,0 +1,38 @@
+# Dependencies and caches
+node_modules/
+.cache/
+.turbo/
+
+# Build outputs
+dist/
+build/
+.svelte-kit/
+storybook-static/
+tmp/
+
+# Generated code (the `generate` task)
+generated/
+
+# Test output
+test-results/
+playwright-report/
+
+# Secrets: every .env file except the committed examples
+.env*
+!.env.example
+
+# Logs
+*.log
+
+# Left behind by Vite's config loader
+vite.config.*.timestamp-*
+
+# OS and editor files; the editor files the project shares stay tracked
+.DS_Store
+Thumbs.db
+.idea/
+**/.vscode/*
+!**/.vscode/extensions.json
+!**/.vscode/launch.json
+!**/.vscode/tasks.json
+!**/.vscode/settings.json
