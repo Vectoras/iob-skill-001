@@ -1,3 +1,7 @@
 go 1.27.3
 
-use ./apps/accounts
+use (
+	./apps/accounts
+	./apps/orders
+	./packages/go-types
+)

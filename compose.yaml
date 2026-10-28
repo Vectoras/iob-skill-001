@@ -125,3 +125,31 @@ services:
         "::",
         "./tmp/accounts",
       ]
+
+  # -xdir tmp: the build writes into tmp/, inside the watched folder. Without the
+  # exclusion the build would trigger the watcher and the server would start twice.
+  orders:
+    <<: *service-defaults
+    working_dir: /monorepo/apps/orders
+    build:
+      dockerfile: ./Dockerfile.go
+      <<: *build-defaults
+    ports:
+      - "8081:8081"
+    environment:
+      - PORT=8081
+    # Secrets (ORDERS_SECRET). Copy .env.example to .env in a fresh clone.
+    env_file: apps/orders/.env
+    command:
+      [
+        "wgo",
+        "-xdir",
+        "tmp",
+        "go",
+        "build",
+        "-o",
+        "./tmp/orders",
+        "./cmd/orders",
+        "::",
+        "./tmp/orders",
+      ]
