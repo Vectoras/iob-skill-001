@@ -1,0 +1,8 @@
+# Tracked in git, but machine-written; never hand-formatted
+pnpm-lock.yaml
+
+# The rules the project was created with, kept as they were written
+docs/guide.md
+
+# Templates with placeholders: not valid files until filled in
+.claude/skills/add-package/templates/
