@@ -4,12 +4,13 @@ A monorepo in pnpm workspaces and Turborepo, developed inside containers. Its ap
 
 ## Structure
 
-| Folder          | What it holds                                                           |
-| --------------- | ----------------------------------------------------------------------- |
-| `scripts/`      | Maintenance scripts (versions)                                          |
-| `docs/guide.md` | The rules this project follows                                          |
-| `apps/api/`     | Go private API (chi + huma)                                             |
-| `tools/`        | Go dev tools (wgo, Delve, tygo): a module with no code, outside go.work |
+| Folder                    | What it holds                                                                            |
+| ------------------------- | ---------------------------------------------------------------------------------------- |
+| `scripts/`                | Maintenance scripts (versions)                                                           |
+| `docs/guide.md`           | The rules this project follows                                                           |
+| `apps/api/`               | Go private API (chi + huma)                                                              |
+| `packages/ui-components/` | Svelte components shared by the frontend apps, with their stylesheet and their Storybook |
+| `tools/`                  | Go dev tools (wgo, Delve, tygo): a module with no code, outside go.work                  |
 
 ## Prerequisites
 
@@ -37,11 +38,12 @@ This builds the images and starts every service. The first start installs everyt
 
 ### Services
 
-| Service       | Image            | What it does                                                                                                      |
-| ------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `editing`     | `Dockerfile.all` | Runs nothing. The editor attaches here; git, the hooks, checks, tests and builds run here                         |
-| `maintenance` | `Dockerfile.all` | Installs dependencies and what the apps' tools need, generates code, then regenerates it on change                |
-| `api`         | `Dockerfile.go`  | The Go private API on port 8080, rebuilt and restarted on change; every route but `/healthz` needs `X-Api-Secret` |
+| Service                   | Image             | What it does                                                                                                      |
+| ------------------------- | ----------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `editing`                 | `Dockerfile.all`  | Runs nothing. The editor attaches here; git, the hooks, checks, tests and builds run here                         |
+| `maintenance`             | `Dockerfile.all`  | Installs dependencies and what the apps' tools need, generates code, then regenerates it on change                |
+| `api`                     | `Dockerfile.go`   | The Go private API on port 8080, rebuilt and restarted on change; every route but `/healthz` needs `X-Api-Secret` |
+| `ui-components-storybook` | `Dockerfile.node` | ui-components' Storybook on port 6006                                                                             |
 
 The app services wait for `maintenance` to be healthy. The whole repo is bind-mounted into every container at `/monorepo`. Compose starts each program directly, with no `pnpm run` in between; Turborepo runs the tasks (checks, tests, builds, code generation), not the apps.
 
@@ -96,6 +98,7 @@ Every toolchain version is written once, in the build arguments at the top of `c
 | `./scripts/check-versions.sh`      | Changes nothing. Reports everything out of step with `compose.yaml` and which script fixes it |
 | `./scripts/update-pnpm-version.sh` | Sets the pnpm range in the root `package.json` to a new major; then restart `maintenance`     |
 | `./scripts/update-go-version.sh`   | Sets the `go` line of `go.work` and every `go.mod`                                            |
+| `./scripts/update-node-types.sh`   | Moves `@types/node` to Node's major, as an exact version                                      |
 
 ## Hello world
 
@@ -111,6 +114,7 @@ Chosen per project when the need comes (see "Not decided" in `docs/guide.md`):
 - CI (the rules for it are in `docs/guide.md` §9)
 - Toolchain versions: one source of truth with one bump command (for now each tool has its own `scripts/update-*.sh`, and `scripts/check-versions.sh` checks they agree)
 - Where the Go apps are hosted in production
+- Production deployment of the frontend apps (each builds with the SvelteKit adapter chosen from its deployment target; `auto` means the target wasn't known yet)
 
 ## Quick run without Docker
 
