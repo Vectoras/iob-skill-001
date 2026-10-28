@@ -1,6 +1,11 @@
 {
   "$schema": "./node_modules/turbo/schema.json",
-  "globalPassThroughEnv": ["GOPATH", "GOCACHE", "GOTOOLCHAIN"],
+  "globalPassThroughEnv": [
+    "GOPATH",
+    "GOCACHE",
+    "GOTOOLCHAIN",
+    "PLAYWRIGHT_BROWSERS_PATH"
+  ],
   "tasks": {
     "generate": {
       "dependsOn": ["^generate"],
@@ -35,11 +40,11 @@
     },
     "typecheck": {
       "dependsOn": ["^generate", "generate"],
-      "inputs": ["$TURBO_DEFAULT$"]
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/tsconfig.base.json"]
     },
     "test:unit": {
       "dependsOn": ["^generate", "generate"],
-      "inputs": ["$TURBO_DEFAULT$"],
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/tsconfig.base.json"],
       "passThroughEnv": []
     },
     "test:e2e": {
@@ -56,7 +61,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/.gitignore",
-        "$TURBO_ROOT$/.golangci.yml"
+        "$TURBO_ROOT$/.golangci.yml",
+        "$TURBO_ROOT$/eslint.config.js"
       ]
     },
     "format:fix": {
