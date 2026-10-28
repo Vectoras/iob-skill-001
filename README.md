@@ -4,10 +4,12 @@ A monorepo in pnpm workspaces and Turborepo, developed inside containers. Its ap
 
 ## Structure
 
-| Folder          | What it holds                  |
-| --------------- | ------------------------------ |
-| `scripts/`      | Maintenance scripts (versions) |
-| `docs/guide.md` | The rules this project follows |
+| Folder          | What it holds                                                           |
+| --------------- | ----------------------------------------------------------------------- |
+| `scripts/`      | Maintenance scripts (versions)                                          |
+| `apps/catalog/` | Go public API (chi + huma)                                              |
+| `tools/`        | Go dev tools (wgo, Delve, tygo): a module with no code, outside go.work |
+| `docs/guide.md` | The rules this project follows                                          |
 
 ## Prerequisites
 
@@ -39,6 +41,7 @@ This builds the images and starts every service. The first start installs everyt
 | ------------- | ---------------- | -------------------------------------------------------------------------------------------------- |
 | `editing`     | `Dockerfile.all` | Runs nothing. The editor attaches here; git, the hooks, checks, tests and builds run here          |
 | `maintenance` | `Dockerfile.all` | Installs dependencies and what the apps' tools need, generates code, then regenerates it on change |
+| `catalog`     | `Dockerfile.go`  | The Go public API on port 8080, rebuilt and restarted on change                                    |
 
 The app services wait for `maintenance` to be healthy. The whole repo is bind-mounted into every container at `/monorepo`. Compose starts each program directly, with no `pnpm run` in between; Turborepo runs the tasks (checks, tests, builds, code generation), not the apps.
 
@@ -64,6 +67,10 @@ pnpm turbo run build --filter <app>
 
 Commits are made in the editing service, where the hooks run: pre-commit fixes the staged files, pre-push checks (no tests: those are for CI).
 
+### OpenAPI descriptions
+
+`pnpm openapi` writes each API's OpenAPI description to `apps/<api>/generated/openapi.yaml` (OpenAPI 3.1) and `openapi-3.0.yaml` (3.0), for Postman and other API clients. They are gitignored and built from the code, with no server started: run it again after a change. A private API's description asks for its `X-Api-Secret`.
+
 ### Changing how an app starts
 
 Each app's start command is written twice: in `compose.yaml` (its full-mode version in `compose.full.yaml`), and as the app's `dev:lean` / `dev:full` scripts, which the host run uses. Each Storybook's command likewise, as its package's `storybook:dev`. **When you change one, change the other in the same commit.** The intended differences: in the full-mode scripts the debuggers listen on `127.0.0.1`, the JS ones on a random port; a Go app's scripts set its `PORT` themselves.
@@ -71,6 +78,14 @@ Each app's start command is written twice: in `compose.yaml` (its full-mode vers
 ### Env vars and secrets
 
 Compose injects every variable. Non-secret values are in `compose.yaml`; secrets in each app's gitignored `.env`, listed with dummy values in its committed `.env.example`. There is no root `.env`.
+
+### Go dev tools
+
+The Go dev tools (wgo, Delve, and tygo once `packages/shared-types` exists) are listed in `tools/go.mod`, a module with no code, kept out of `go.work` so the tools' dependencies never change the apps' versions. `maintenance` installs them into `$GOPATH/bin`, and everything calls them by name. Every command in `tools/` needs `GOWORK=off`.
+
+### Go modules in sync
+
+Inside `go.work`, Go builds every module with the highest version any module asks for; a module built on its own (a production image) uses only its own `go.mod`. `./scripts/check-go-sync.sh` reports any module that would build differently on its own, with the fix (`go work sync`, then `GOWORK=off go mod tidy` in each module it names). It also reports a local module a `go.mod` replaces but its `package.json` doesn't list as a workspace dependency: Turborepo reads only `package.json`, and would replay the module's cached checks and tests after a change in the module it uses. It changes nothing, and runs in the pre-push hook.
 
 ### Tool versions
 
@@ -80,6 +95,7 @@ Every toolchain version is written once, in the build arguments at the top of `c
 | ---------------------------------- | --------------------------------------------------------------------------------------------- |
 | `./scripts/check-versions.sh`      | Changes nothing. Reports everything out of step with `compose.yaml` and which script fixes it |
 | `./scripts/update-pnpm-version.sh` | Sets the pnpm range in the root `package.json` to a new major; then restart `maintenance`     |
+| `./scripts/update-go-version.sh`   | Sets the `go` line of `go.work` and every `go.mod`                                            |
 
 ## Hello world
 
@@ -93,6 +109,8 @@ Chosen per project when the need comes (see "Not decided" in `docs/guide.md`):
 - Logging and error response shapes
 - Authentication and sessions
 - CI (the rules for it are in `docs/guide.md` §9)
+- Where the Go apps are hosted in production
+- Public APIs: CORS, rate limits, authentication
 - Toolchain versions: one source of truth with one bump command (for now each tool has its own `scripts/update-*.sh`, and `scripts/check-versions.sh` checks they agree)
 
 ## Quick run without Docker
@@ -101,6 +119,8 @@ For a quick look only, not for development. You need Node and pnpm installed (an
 
 ```bash
 pnpm install
+(cd tools && GOWORK=off go install tool)    # the Go dev tools
+export PATH="$PATH:$(go env GOPATH)/bin"    # if Go's bin folder isn't on your PATH yet
 for f in apps/*/.env.example; do cp -n "$f" "${f%.example}"; done
 set -a; for f in apps/*/.env; do . "$f"; done; set +a    # every app's secrets
 pnpm dev:lean     # or: pnpm dev:full, with the debuggers on
