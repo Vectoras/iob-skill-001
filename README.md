@@ -4,10 +4,10 @@ A monorepo in pnpm workspaces and Turborepo, developed inside containers. Its ap
 
 ## Structure
 
-| Folder          | What it holds                                                    |
-| --------------- | ---------------------------------------------------------------- |
-| `scripts/`      | Maintenance scripts (versions)                                   |
-| `docs/guide.md` | The rules this project follows                                   |
+| Folder          | What it holds                  |
+| --------------- | ------------------------------ |
+| `scripts/`      | Maintenance scripts (versions) |
+| `docs/guide.md` | The rules this project follows |
 
 ## Prerequisites
 
@@ -76,10 +76,10 @@ Compose injects every variable. Non-secret values are in `compose.yaml`; secrets
 
 Every toolchain version is written once, in the build arguments at the top of `compose.yaml`. Change one there by hand, rebuild (`docker compose up -d --build`), then run the matching script inside `editing`:
 
-| Script                             | What it does                                                                                 |
-| ---------------------------------- | -------------------------------------------------------------------------------------------- |
+| Script                             | What it does                                                                                  |
+| ---------------------------------- | --------------------------------------------------------------------------------------------- |
 | `./scripts/check-versions.sh`      | Changes nothing. Reports everything out of step with `compose.yaml` and which script fixes it |
-| `./scripts/update-pnpm-version.sh` | Sets the pnpm range in the root `package.json` to a new major; then restart `maintenance`    |
+| `./scripts/update-pnpm-version.sh` | Sets the pnpm range in the root `package.json` to a new major; then restart `maintenance`     |
 
 ## Hello world
 
