@@ -1,0 +1,25 @@
+# The image with everything: Node and pnpm, which the workspace runs on, plus every
+# toolchain the project's apps need (Go and its linter with a Go app; the test
+# browser's system libraries with a frontend app).
+# For the services where work is done or prepared: `editing` and `maintenance`.
+#
+# Every version comes from compose.yaml as a build argument. The arguments have no
+# defaults on purpose: a build that does not pass them fails instead of picking a version.
+
+# Declared before FROM so they can be used in the base image's tag.
+ARG NODE_VERSION=
+ARG OS_RELEASE=
+FROM node:${NODE_VERSION}-${OS_RELEASE}
+ARG PNPM_VERSION=
+# Where the caches live, inside the bind-mounted repo (used by the toolchains below).
+ARG CACHE_DIR=
+
+# Installed directly at the pinned version, not through Corepack.
+RUN npm install -g pnpm@${PNPM_VERSION}
+
+# Each ecosystem's toolchain goes here, added with the project's first app of that
+# kind. Installs that need root stay above USER.
+
+# The non-root user that the Node image provides (id 1000). Files created in the
+# bind mount get this owner, so every image has to run as the same id.
+USER node

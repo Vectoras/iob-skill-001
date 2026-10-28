@@ -1,0 +1,95 @@
+name: hello-012
+
+# The source of truth for every toolchain version. Exact versions only.
+#
+# These names are a contract: do not rename or remove one without changing every
+# reader in the same commit. A new one is added here first, with its readers.
+#   NODE_VERSION        Dockerfile.all, scripts/check-versions.sh
+#   OS_RELEASE          Dockerfile.all, scripts/check-versions.sh
+#   PNPM_VERSION        Dockerfile.all, scripts/check-versions.sh, scripts/update-pnpm-version.sh
+#   CACHE_DIR           Dockerfile.all
+x-versions-args: &versions-args
+  NODE_VERSION: 24.22.1
+  OS_RELEASE: trixie
+  PNPM_VERSION: 12.15.0
+  CACHE_DIR: /monorepo/.cache
+
+x-service-defaults: &service-defaults
+  init: true
+  volumes:
+    - ./:/monorepo
+  depends_on:
+    maintenance:
+      condition: service_healthy
+
+x-build-defaults: &build-defaults
+  context: ./
+  args:
+    <<: *versions-args
+
+services:
+  # --- working services ---------------
+
+  # Where the work is done: the editor attaches here, and git, the hooks, manual turbo
+  # runs, end-to-end tests and the debuggers' clients all run here. Has every toolchain,
+  # runs nothing, and waits for nothing, so it can be used even when `maintenance` fails.
+  editing:
+    <<: *service-defaults
+    working_dir: /monorepo
+    build:
+      dockerfile: ./Dockerfile.all
+      <<: *build-defaults
+    depends_on: {}
+    command: ["sleep", "infinity"]
+
+  # Prepares what the other services need, then keeps it up to date:
+  #   1. installs the dependencies (frozen lockfile: CI=true), and what the apps' tools
+  #      need beside them (the Go tools, the test browser into .cache/playwright)
+  #   2. generates code once (every package with a `generate` script)
+  #   3. marks itself ready: the app services wait for this (see the healthcheck)
+  #   4. stays alive, regenerating when a package with a `generate` script changes
+  maintenance:
+    <<: *service-defaults
+    working_dir: /monorepo
+    build:
+      dockerfile: ./Dockerfile.all
+      <<: *build-defaults
+    depends_on: {}
+    environment:
+      # pnpm would otherwise wait for a terminal to ask in; this service has none.
+      - CI=true
+    # The marker is removed first: a container that is stopped and started keeps its
+    # files, and must not look ready before the steps above have run again.
+    command:
+      [
+        "sh",
+        "-c",
+        "rm -f /tmp/ready && pnpm install && pnpm turbo run generate && touch /tmp/ready && exec pnpm turbo watch generate",
+      ]
+    # Healthy once the marker exists. Checked every second while starting, so the
+    # app services start as soon as step 3 is reached.
+    healthcheck:
+      test: ["CMD", "test", "-f", "/tmp/ready"]
+      start_period: 10m
+      start_interval: 1s
+      interval: 30s
+      timeout: 2s
+
+  # --- app services --------------------
+
+  # Every app service calls its program directly, with no wrapper process kept alive
+  # (no shell, no `go tool`, no `pnpm run`): Go tools from $GOPATH/bin, filled by
+  # `maintenance` from the tools module (tools/); JS programs from the package's
+  # node_modules/.bin.
+  #
+  # KEEP IN STEP: each app's command here is also written as the `dev:lean` script in
+  # the app's package.json (and its full-mode command, in compose.full.yaml, as
+  # `dev:full`); each Storybook's command is also its package's `storybook:dev` script.
+  # Those scripts are for running the repo on the host without Docker. Whenever a
+  # command changes in one place, change it in the other in the same commit. Intended
+  # differences:
+  #   - in `dev:full`, the debuggers listen on 127.0.0.1 only, and the JS apps on a random
+  #     port (`--inspect=0`): on one host, a fixed port would clash between JS apps,
+  #     and 0.0.0.0 would open the debuggers to the local network
+  #   - a Go app's scripts start with `PORT=<port>`, which a service sets in its
+  #     `environment`: on one host, every app would otherwise inherit the same PORT
