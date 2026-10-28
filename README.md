@@ -98,6 +98,7 @@ Chosen per project when the need comes (see "Not decided" in `docs/guide.md`):
 - Logging and error response shapes
 - Authentication and sessions
 - CI (the rules for it are in `docs/guide.md` §9)
+- UI component libraries: which ones, if any, beside the hand-written components
 - Toolchain versions: one source of truth with one bump command (for now each tool has its own `scripts/update-*.sh`, and `scripts/check-versions.sh` checks they agree)
 - Production deployment of the frontend apps (each builds with the SvelteKit adapter chosen from its deployment target; `auto` means the target wasn't known yet)
 
