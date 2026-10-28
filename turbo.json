@@ -16,19 +16,19 @@
       "dependsOn": ["^generate", "generate"],
       "persistent": true,
       "cache": false,
-      "passThroughEnv": ["API_SECRET"]
+      "passThroughEnv": ["API_SECRET", "API_URL"]
     },
     "dev:full": {
       "dependsOn": ["^generate", "generate"],
       "persistent": true,
       "cache": false,
-      "passThroughEnv": ["API_SECRET"]
+      "passThroughEnv": ["API_SECRET", "API_URL"]
     },
     "storybook:dev": {
       "dependsOn": ["^generate", "generate"],
       "persistent": true,
       "cache": false,
-      "passThroughEnv": []
+      "passThroughEnv": ["API_URL", "API_SECRET"]
     },
     "storybook:build": {
       "dependsOn": ["^generate", "generate"],
@@ -38,6 +38,10 @@
       "dependsOn": ["^generate", "generate"],
       "outputs": ["dist/**"]
     },
+    "web#build": {
+      "dependsOn": ["^generate", "generate"],
+      "outputs": [".svelte-kit/output/**"]
+    },
     "typecheck": {
       "dependsOn": ["^generate", "generate"],
       "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/tsconfig.base.json"]
@@ -45,11 +49,11 @@
     "test:unit": {
       "dependsOn": ["^generate", "generate"],
       "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/tsconfig.base.json"],
-      "passThroughEnv": []
+      "passThroughEnv": ["API_URL", "API_SECRET"]
     },
     "test:e2e": {
       "dependsOn": ["^generate", "generate"],
-      "env": []
+      "env": ["WEB_URL"]
     },
     "openapi": {
       "outputs": ["generated/**"]
