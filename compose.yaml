@@ -5,13 +5,17 @@ name: hello-015
 # These names are a contract: do not rename or remove one without changing every
 # reader in the same commit. A new one is added here first, with its readers.
 #   NODE_VERSION        Dockerfile.all, scripts/check-versions.sh
-#   OS_RELEASE          Dockerfile.all, scripts/check-versions.sh
+#   OS_RELEASE          Dockerfile.all, Dockerfile.go, scripts/check-versions.sh
 #   PNPM_VERSION        Dockerfile.all, scripts/check-versions.sh, scripts/update-pnpm-version.sh
-#   CACHE_DIR           Dockerfile.all
+#   GO_VERSION          Dockerfile.all, Dockerfile.go, scripts/check-versions.sh, scripts/update-go-version.sh
+#   GOLANGCI_VERSION    Dockerfile.all, scripts/check-versions.sh
+#   CACHE_DIR           Dockerfile.all, Dockerfile.go
 x-versions-args: &versions-args
   NODE_VERSION: 24.22.1
   OS_RELEASE: trixie
   PNPM_VERSION: 12.15.0
+  GO_VERSION: 1.27.3
+  GOLANGCI_VERSION: 2.15.0
   CACHE_DIR: /monorepo/.cache
 
 x-service-defaults: &service-defaults
@@ -64,7 +68,7 @@ services:
       [
         "sh",
         "-c",
-        "rm -f /tmp/ready && pnpm install && pnpm turbo run generate && touch /tmp/ready && exec pnpm turbo watch generate",
+        "rm -f /tmp/ready && pnpm install && GOWORK=off go -C tools install tool && pnpm turbo run generate && touch /tmp/ready && exec pnpm turbo watch generate",
       ]
     # Healthy once the marker exists. Checked every second while starting, so the
     # app services start as soon as step 3 is reached.
@@ -93,3 +97,31 @@ services:
   #     and 0.0.0.0 would open the debuggers to the local network
   #   - a Go app's scripts start with `PORT=<port>`, which a service sets in its
   #     `environment`: on one host, every app would otherwise inherit the same PORT
+
+  # -xdir tmp: the build writes into tmp/, inside the watched folder. Without the
+  # exclusion the build would trigger the watcher and the server would start twice.
+  accounts:
+    <<: *service-defaults
+    working_dir: /monorepo/apps/accounts
+    build:
+      dockerfile: ./Dockerfile.go
+      <<: *build-defaults
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+    # Secrets (ACCOUNTS_SECRET). Copy .env.example to .env in a fresh clone.
+    env_file: apps/accounts/.env
+    command:
+      [
+        "wgo",
+        "-xdir",
+        "tmp",
+        "go",
+        "build",
+        "-o",
+        "./tmp/accounts",
+        "./cmd/accounts",
+        "::",
+        "./tmp/accounts",
+      ]
