@@ -4,12 +4,14 @@ A monorepo in pnpm workspaces and Turborepo, developed inside containers. Its ap
 
 ## Structure
 
-| Folder          | What it holds                                                           |
-| --------------- | ----------------------------------------------------------------------- |
-| `scripts/`      | Maintenance scripts (versions)                                          |
-| `apps/catalog/` | Go public API (chi + huma)                                              |
-| `tools/`        | Go dev tools (wgo, Delve, tygo): a module with no code, outside go.work |
-| `docs/guide.md` | The rules this project follows                                          |
+| Folder               | What it holds                                                           |
+| -------------------- | ----------------------------------------------------------------------- |
+| `scripts/`           | Maintenance scripts (versions)                                          |
+| `apps/catalog/`      | Go public API (chi + huma)                                              |
+| `apps/worker/`       | Go internal service (chi + huma)                                        |
+| `packages/go-types/` | Types shared between the Go apps (Go module)                            |
+| `tools/`             | Go dev tools (wgo, Delve, tygo): a module with no code, outside go.work |
+| `docs/guide.md`      | The rules this project follows                                          |
 
 ## Prerequisites
 
@@ -42,6 +44,7 @@ This builds the images and starts every service. The first start installs everyt
 | `editing`     | `Dockerfile.all` | Runs nothing. The editor attaches here; git, the hooks, checks, tests and builds run here          |
 | `maintenance` | `Dockerfile.all` | Installs dependencies and what the apps' tools need, generates code, then regenerates it on change |
 | `catalog`     | `Dockerfile.go`  | The Go public API on port 8080, rebuilt and restarted on change                                    |
+| `worker`      | `Dockerfile.go`  | The Go internal service on port 8081, rebuilt and restarted on change, on 127.0.0.1 only           |
 
 The app services wait for `maintenance` to be healthy. The whole repo is bind-mounted into every container at `/monorepo`. Compose starts each program directly, with no `pnpm run` in between; Turborepo runs the tasks (checks, tests, builds, code generation), not the apps.
 
@@ -111,6 +114,7 @@ Chosen per project when the need comes (see "Not decided" in `docs/guide.md`):
 - CI (the rules for it are in `docs/guide.md` §9)
 - Where the Go apps are hosted in production
 - Public APIs: CORS, rate limits, authentication
+- Calls to internal Go services: the protocol and the contract
 - Toolchain versions: one source of truth with one bump command (for now each tool has its own `scripts/update-*.sh`, and `scripts/check-versions.sh` checks they agree)
 
 ## Quick run without Docker

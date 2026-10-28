@@ -32,3 +32,27 @@ services:
         "--accept-multiclient",
         "--continue",
       ]
+
+  worker:
+    # -xdir tmp: see compose.yaml. Optimisations off so the debugger sees every variable.
+    command:
+      [
+        "wgo",
+        "-xdir",
+        "tmp",
+        "go",
+        "build",
+        "-gcflags=all=-N -l",
+        "-o",
+        "./tmp/worker",
+        "./cmd/worker",
+        "::",
+        "dlv",
+        "exec",
+        "./tmp/worker",
+        "--headless",
+        "--listen=:2345",
+        "--api-version=2",
+        "--accept-multiclient",
+        "--continue",
+      ]

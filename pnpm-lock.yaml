@@ -188,6 +188,20 @@ importers:
         specifier: 'catalog:'
         version: 2.11.10
 
+  apps/catalog:
+    devDependencies:
+      go-types:
+        specifier: workspace:*
+        version: link:../../packages/go-types
+
+  apps/worker:
+    devDependencies:
+      go-types:
+        specifier: workspace:*
+        version: link:../../packages/go-types
+
+  packages/go-types: {}
+
 packages:
 
   '@turbo/darwin-64@2.11.10':
