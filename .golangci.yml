@@ -1,5 +1,11 @@
 version: "2"
 
+run:
+  # Turborepo runs each Go module's golangci-lint in parallel, and golangci-lint takes
+  # a lock: by default every instance that finds it taken fails at once ("parallel
+  # golangci-lint is running"). Wait for the lock instead.
+  allow-serial-runners: true
+
 # The standard set: a starting point, not a limit.
 linters:
   default: standard

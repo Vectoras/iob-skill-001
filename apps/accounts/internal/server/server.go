@@ -52,6 +52,7 @@ func humaConfig() huma.Config {
 // own file.
 func register(api huma.API) {
 	registerHelloWorldGoTypes(api)
+	registerHelloWorldSharedTypes(api)
 }
 
 // requireSecret refuses every request that doesn't carry the shared secret in its own

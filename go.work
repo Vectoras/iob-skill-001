@@ -4,4 +4,5 @@ use (
 	./apps/accounts
 	./apps/orders
 	./packages/go-types
+	./packages/shared-types
 )

@@ -13,6 +13,7 @@
     "test:unit": "go test ./..."
   },
   "devDependencies": {
-    "go-types": "workspace:*"
+    "go-types": "workspace:*",
+    "shared-types": "workspace:*"
   }
 }
