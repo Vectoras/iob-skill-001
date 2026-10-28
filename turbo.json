@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/turbo/schema.json",
-  "globalPassThroughEnv": [],
+  "globalPassThroughEnv": ["PLAYWRIGHT_BROWSERS_PATH"],
   "tasks": {
     "generate": {
       "dependsOn": ["^generate"],
@@ -33,18 +33,22 @@
       "dependsOn": ["^generate", "generate"],
       "outputs": ["dist/**"]
     },
+    "web#build": {
+      "dependsOn": ["^generate", "generate"],
+      "outputs": [".svelte-kit/output/**", "build/**"]
+    },
     "typecheck": {
       "dependsOn": ["^generate", "generate"],
-      "inputs": ["$TURBO_DEFAULT$"]
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/tsconfig.base.json"]
     },
     "test:unit": {
       "dependsOn": ["^generate", "generate"],
-      "inputs": ["$TURBO_DEFAULT$"],
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/tsconfig.base.json"],
       "passThroughEnv": []
     },
     "test:e2e": {
       "dependsOn": ["^generate", "generate"],
-      "env": []
+      "env": ["WEB_URL"]
     },
     "openapi": {
       "outputs": ["generated/**"]
@@ -53,7 +57,11 @@
       "cache": false
     },
     "lint:check": {
-      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/.gitignore"]
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/.gitignore",
+        "$TURBO_ROOT$/eslint.config.js"
+      ]
     },
     "format:fix": {
       "cache": false

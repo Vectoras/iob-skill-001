@@ -6,6 +6,10 @@
 pre-commit:
   parallel: false
   commands:
+    1-eslint:
+      glob: "*.{js,ts,svelte}"
+      run: pnpm exec eslint --fix --no-warn-ignored {staged_files}
+      stage_fixed: true
     9-prettier:
       glob: "*.{js,ts,svelte,json,css,md,yml,yaml,html}"
       run: pnpm exec prettier --write --ignore-unknown {staged_files}
