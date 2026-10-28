@@ -1,7 +1,7 @@
 // Hello world: page data from the private APIs, through the frontend's server (a
 // server load), rendered on the server. Delete it when the real work starts.
 import { error } from "@sveltejs/kit";
-import { ApiError } from "../lib/server/api-client";
+import { ApiError } from "api-client";
 import { getHelloWorlds } from "../lib/server/hello-world";
 import type { PageServerLoad } from "./$types";
 

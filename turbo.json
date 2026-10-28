@@ -69,7 +69,7 @@
     },
     "test:e2e": {
       "dependsOn": ["^generate", "generate"],
-      "env": ["SHOP_URL"]
+      "env": ["SHOP_URL", "ADMIN_URL"]
     },
     "openapi": {
       "outputs": ["generated/**"]
@@ -101,6 +101,10 @@
     "shop#build": {
       "dependsOn": ["^generate", "generate"],
       "outputs": [".svelte-kit/output/**"]
+    },
+    "admin#build": {
+      "dependsOn": ["^generate", "generate"],
+      "outputs": [".svelte-kit/output/**", "build/**"]
     }
   }
 }
