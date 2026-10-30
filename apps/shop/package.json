@@ -42,6 +42,8 @@
     "ui-components": "workspace:*",
     "vite": "catalog:",
     "vitest": "catalog:",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "api-client": "workspace:*",
+    "ts-types": "workspace:*"
   }
 }

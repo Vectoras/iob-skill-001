@@ -191,6 +191,9 @@ catalogs:
     '@sveltejs/adapter-auto':
       specifier: 8.0.0
       version: 8.0.0
+    '@sveltejs/adapter-node':
+      specifier: 6.0.0
+      version: 6.0.0
     '@sveltejs/kit':
       specifier: 3.1.0
       version: 3.1.0
@@ -311,6 +314,81 @@ importers:
         specifier: workspace:*
         version: link:../../packages/shared-types
 
+  apps/admin:
+    devDependencies:
+      '@chromatic-com/storybook':
+        specifier: 'catalog:'
+        version: 5.6.0(storybook@10.6.4(@types/react@19.3.0)(prettier@3.9.10)(react@19.3.1))
+      '@storybook/addon-a11y':
+        specifier: 'catalog:'
+        version: 10.6.4(storybook@10.6.4(@types/react@19.3.0)(prettier@3.9.10)(react@19.3.1))
+      '@storybook/addon-docs':
+        specifier: 'catalog:'
+        version: 10.6.4(@types/react@19.3.0)(storybook@10.6.4(@types/react@19.3.0)(prettier@3.9.10)(react@19.3.1))
+      '@storybook/addon-svelte-csf':
+        specifier: 'catalog:'
+        version: 5.1.5(@storybook/svelte@10.6.4(storybook@10.6.4(@types/react@19.3.0)(prettier@3.9.10)(react@19.3.1))(svelte@5.57.3(@typescript-eslint/types@8.72.1)))(@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.3(@typescript-eslint/types@8.72.1))(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2)))(storybook@10.6.4(@types/react@19.3.0)(prettier@3.9.10)(react@19.3.1))(svelte@5.57.3(@typescript-eslint/types@8.72.1))(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2))
+      '@storybook/addon-vitest':
+        specifier: 'catalog:'
+        version: 10.6.4(@vitest/browser-playwright@4.1.12)(@vitest/browser@4.1.12)(react@19.3.1)(storybook@10.6.4(@types/react@19.3.0)(prettier@3.9.10)(react@19.3.1))(vitest@4.1.12)
+      '@storybook/sveltekit':
+        specifier: 'catalog:'
+        version: 10.6.4(@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.3(@typescript-eslint/types@8.72.1))(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2)))(storybook@10.6.4(@types/react@19.3.0)(prettier@3.9.10)(react@19.3.1))(svelte@5.57.3(@typescript-eslint/types@8.72.1))(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2))
+      '@sveltejs/adapter-node':
+        specifier: 'catalog:'
+        version: 6.0.0(@sveltejs/kit@3.1.0(@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.3(@typescript-eslint/types@8.72.1))(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2)))(svelte@5.57.3(@typescript-eslint/types@8.72.1))(typescript@6.0.3)(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2)))
+      '@sveltejs/kit':
+        specifier: 'catalog:'
+        version: 3.1.0(@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.3(@typescript-eslint/types@8.72.1))(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2)))(svelte@5.57.3(@typescript-eslint/types@8.72.1))(typescript@6.0.3)(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2))
+      '@sveltejs/vite-plugin-svelte':
+        specifier: 'catalog:'
+        version: 7.3.1(svelte@5.57.3(@typescript-eslint/types@8.72.1))(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2))
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.19.2
+      '@vitest/browser-playwright':
+        specifier: 'catalog:'
+        version: 4.1.12(playwright@1.64.1)(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2))(vitest@4.1.12)
+      '@vitest/coverage-v8':
+        specifier: 'catalog:'
+        version: 4.1.12(@vitest/browser@4.1.12)(vitest@4.1.12)
+      api-client:
+        specifier: workspace:*
+        version: link:../../packages/api-client
+      playwright:
+        specifier: 'catalog:'
+        version: 1.64.1
+      shared-types:
+        specifier: workspace:*
+        version: link:../../packages/shared-types
+      storybook:
+        specifier: 'catalog:'
+        version: 10.6.4(@types/react@19.3.0)(prettier@3.9.10)(react@19.3.1)
+      svelte:
+        specifier: 'catalog:'
+        version: 5.57.3(@typescript-eslint/types@8.72.1)
+      svelte-check:
+        specifier: 'catalog:'
+        version: 4.7.7(picomatch@4.0.7)(svelte@5.57.3(@typescript-eslint/types@8.72.1))(typescript@6.0.3)
+      ts-types:
+        specifier: workspace:*
+        version: link:../../packages/ts-types
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      ui-components:
+        specifier: workspace:*
+        version: link:../../packages/ui-components
+      vite:
+        specifier: 'catalog:'
+        version: 8.3.5(@types/node@24.19.2)(esbuild@0.28.2)
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.12(@types/node@24.19.2)(@vitest/browser-playwright@4.1.12)(@vitest/coverage-v8@4.1.12)(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2))
+      zod:
+        specifier: 'catalog:'
+        version: 4.6.7
+
   apps/orders:
     devDependencies:
       go-types:
@@ -358,6 +436,9 @@ importers:
       '@vitest/coverage-v8':
         specifier: 'catalog:'
         version: 4.1.12(@vitest/browser@4.1.12)(vitest@4.1.12)
+      api-client:
+        specifier: workspace:*
+        version: link:../../packages/api-client
       playwright:
         specifier: 'catalog:'
         version: 1.64.1
@@ -373,6 +454,9 @@ importers:
       svelte-check:
         specifier: 'catalog:'
         version: 4.7.7(picomatch@4.0.7)(svelte@5.57.3(@typescript-eslint/types@8.72.1))(typescript@6.0.3)
+      ts-types:
+        specifier: workspace:*
+        version: link:../../packages/ts-types
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -388,6 +472,27 @@ importers:
       zod:
         specifier: 'catalog:'
         version: 4.6.7
+
+  e2e/admin:
+    devDependencies:
+      '@playwright/test':
+        specifier: 'catalog:'
+        version: 1.64.1
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.19.2
+      accounts:
+        specifier: workspace:*
+        version: link:../../apps/accounts
+      admin:
+        specifier: workspace:*
+        version: link:../../apps/admin
+      orders:
+        specifier: workspace:*
+        version: link:../../apps/orders
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
 
   e2e/shop:
     devDependencies:
@@ -410,6 +515,19 @@ importers:
         specifier: 'catalog:'
         version: 6.0.3
 
+  packages/api-client:
+    dependencies:
+      zod:
+        specifier: 'catalog:'
+        version: 4.6.7
+    devDependencies:
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.12(@types/node@24.19.2)(@vitest/browser-playwright@4.1.12)(@vitest/coverage-v8@4.1.12)(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2))
+
   packages/go-types: {}
 
   packages/shared-types:
@@ -417,6 +535,15 @@ importers:
       zod:
         specifier: 'catalog:'
         version: 4.6.7
+    devDependencies:
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.12(@types/node@24.19.2)(@vitest/browser-playwright@4.1.12)(@vitest/coverage-v8@4.1.12)(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2))
+
+  packages/ts-types:
     devDependencies:
       typescript:
         specifier: 'catalog:'
@@ -1251,6 +1378,11 @@ packages:
 
   '@sveltejs/adapter-auto@8.0.0':
     resolution: {integrity: sha512-CKOwUS865xfoZn3CpM868slPfitsQ4vmxAR/yOfTIguAwStgkhjhzV0zEhmkzPalH338LJ9XnQX9vfQeY7220A==}
+    peerDependencies:
+      '@sveltejs/kit': ^3.0.0-next.0
+
+  '@sveltejs/adapter-node@6.0.0':
+    resolution: {integrity: sha512-s7muM4JmJ75OZ8o0G4VRhrEKdi8twuEm3t2o/qQsdlm12hKaX7S/CuUBuw3n983wB/IFBSpzG2ugX0xdGzbKwg==}
     peerDependencies:
       '@sveltejs/kit': ^3.0.0-next.0
 
@@ -3183,6 +3315,10 @@ snapshots:
       acorn: 8.19.0
 
   '@sveltejs/adapter-auto@8.0.0(@sveltejs/kit@3.1.0(@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.3(@typescript-eslint/types@8.72.1))(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2)))(svelte@5.57.3(@typescript-eslint/types@8.72.1))(typescript@6.0.3)(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2)))':
+    dependencies:
+      '@sveltejs/kit': 3.1.0(@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.3(@typescript-eslint/types@8.72.1))(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2)))(svelte@5.57.3(@typescript-eslint/types@8.72.1))(typescript@6.0.3)(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2))
+
+  '@sveltejs/adapter-node@6.0.0(@sveltejs/kit@3.1.0(@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.3(@typescript-eslint/types@8.72.1))(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2)))(svelte@5.57.3(@typescript-eslint/types@8.72.1))(typescript@6.0.3)(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2)))':
     dependencies:
       '@sveltejs/kit': 3.1.0(@sveltejs/vite-plugin-svelte@7.3.1(svelte@5.57.3(@typescript-eslint/types@8.72.1))(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2)))(svelte@5.57.3(@typescript-eslint/types@8.72.1))(typescript@6.0.3)(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2))
 

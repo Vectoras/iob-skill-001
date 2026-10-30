@@ -65,3 +65,8 @@ services:
     environment:
       - NODE_OPTIONS=--inspect=0.0.0.0:9229
     command: ["./node_modules/.bin/vite", "dev"]
+
+  admin:
+    environment:
+      - NODE_OPTIONS=--inspect=0.0.0.0:9229
+    command: ["./node_modules/.bin/vite", "dev"]

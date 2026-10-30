@@ -54,6 +54,7 @@ services:
       - ORDERS_URL=http://orders:8081
       # Where the end-to-end tests find each frontend app (by service name).
       - SHOP_URL=http://shop:5173
+      - ADMIN_URL=http://admin:5174
     command: ["sleep", "infinity"]
 
   # Prepares what the other services need, then keeps it up to date:
@@ -233,6 +234,50 @@ services:
         "dev",
         "-p",
         "6007",
+        "--host",
+        "0.0.0.0",
+        "--exact-port",
+        "--no-open",
+      ]
+
+  # Host, port and allowed hosts are in vite.config.ts (every interface; `admin` for
+  # the end-to-end tests, which call it by service name).
+  admin:
+    <<: *service-defaults
+    working_dir: /monorepo/apps/admin
+    build:
+      dockerfile: ./Dockerfile.node
+      <<: *build-defaults
+    ports:
+      - "5174:5174"
+    environment:
+      - ACCOUNTS_URL=http://accounts:8080
+      - ORDERS_URL=http://orders:8081
+    env_file: apps/admin/.env
+    command: ["./node_modules/.bin/vite", "dev"]
+
+  # Storybook listens on 127.0.0.1 unless told otherwise; --exact-port fails instead
+  # of moving to another port. It runs the app's Vite config, so it gets every variable
+  # the app gets, the same as `admin`: without them, starting Storybook breaks the
+  # running app.
+  admin-storybook:
+    <<: *service-defaults
+    working_dir: /monorepo/apps/admin
+    build:
+      dockerfile: ./Dockerfile.node
+      <<: *build-defaults
+    ports:
+      - "6008:6008"
+    environment:
+      - ACCOUNTS_URL=http://accounts:8080
+      - ORDERS_URL=http://orders:8081
+    env_file: apps/admin/.env
+    command:
+      [
+        "./node_modules/.bin/storybook",
+        "dev",
+        "-p",
+        "6008",
         "--host",
         "0.0.0.0",
         "--exact-port",
