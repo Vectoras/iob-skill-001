@@ -22,3 +22,4 @@ One branch per run, `run/NNN-<slug>`; each has its own `README.md`.
 | 016 | `run/016-frontend-only` | 2026-10-30 | fail |
 | 017 | `run/017-frontend-only` | 2026-10-30 | pass |
 | 018 | `run/018-backend-only` | 2026-10-30 | pass |
+| 019 | `run/019-defaults` | 2026-10-30 | pass |
