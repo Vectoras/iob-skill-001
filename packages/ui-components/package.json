@@ -1,0 +1,54 @@
+{
+  "name": "ui-components",
+  "version": "0.0.1",
+  "scripts": {
+    "typecheck": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "lint:fix": "eslint . --fix",
+    "lint:check": "eslint .",
+    "format:fix": "prettier --write . --ignore-path ../../.gitignore --ignore-path ../../.prettierignore",
+    "format:check": "prettier --check . --ignore-path ../../.gitignore --ignore-path ../../.prettierignore",
+    "test:unit": "vitest run",
+    "storybook:dev": "storybook dev -p 6006 --host 0.0.0.0 --exact-port --no-open",
+    "storybook:build": "storybook build"
+  },
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/lib/index.ts",
+      "svelte": "./src/lib/index.ts",
+      "default": "./src/lib/index.ts"
+    },
+    "./styles.css": "./src/lib/styles.css"
+  },
+  "imports": {
+    "#lib": "./src/lib/index.js",
+    "#lib/*": "./src/lib/*"
+  },
+  "devDependencies": {
+    "@chromatic-com/storybook": "catalog:",
+    "@storybook/addon-a11y": "catalog:",
+    "@storybook/addon-docs": "catalog:",
+    "@storybook/addon-svelte-csf": "catalog:",
+    "@storybook/addon-vitest": "catalog:",
+    "@storybook/sveltekit": "catalog:",
+    "@sveltejs/adapter-auto": "catalog:",
+    "@sveltejs/kit": "catalog:",
+    "@sveltejs/vite-plugin-svelte": "catalog:",
+    "@types/node": "catalog:",
+    "@vitest/browser-playwright": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "playwright": "catalog:",
+    "storybook": "catalog:",
+    "svelte": "catalog:",
+    "svelte-check": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  },
+  "peerDependencies": {
+    "svelte": "^5.0.0"
+  }
+}

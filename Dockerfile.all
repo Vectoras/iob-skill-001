@@ -45,6 +45,14 @@ RUN curl -fsSL https://go.dev/dl/go${GO_VERSION}.linux-${TARGETARCH}.tar.gz | ta
 # The Go linter as a released binary, as its documentation asks, not as a Go tool dependency.
 RUN curl -sSfL https://golangci-lint.run/install.sh | sh -s -- -b /usr/local/bin v${GOLANGCI_VERSION}
 
+# --- The test browser's system libraries ---
+# Chromium's libraries, for story tests and end-to-end tests. Needs root, so it
+# happens here; the browser itself is downloaded by `maintenance` into the cache.
+# PLAYWRIGHT_VERSION only has to know OS_RELEASE (see compose.yaml).
+ARG PLAYWRIGHT_VERSION=
+ENV PLAYWRIGHT_BROWSERS_PATH="${CACHE_DIR}/playwright"
+RUN npx --yes playwright@${PLAYWRIGHT_VERSION} install-deps chromium && rm -rf /root/.npm
+
 # The non-root user that the Node image provides (id 1000). Files created in the
 # bind mount get this owner, so every image has to run as the same id.
 USER node

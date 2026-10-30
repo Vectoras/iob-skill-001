@@ -4,11 +4,13 @@ name: hello-019
 #
 # These names are a contract: do not rename or remove one without changing every
 # reader in the same commit. A new one is added here first, with its readers.
-#   NODE_VERSION        Dockerfile.all, scripts/check-versions.sh
-#   OS_RELEASE          Dockerfile.all, Dockerfile.go, scripts/check-versions.sh
-#   PNPM_VERSION        Dockerfile.all, scripts/check-versions.sh, scripts/update-pnpm-version.sh
+#   NODE_VERSION        Dockerfile.all, Dockerfile.node, scripts/check-versions.sh, scripts/update-node-types.sh
+#   OS_RELEASE          Dockerfile.all, Dockerfile.go, Dockerfile.node, scripts/check-versions.sh
+#   PNPM_VERSION        Dockerfile.all, Dockerfile.node, scripts/check-versions.sh, scripts/update-pnpm-version.sh
 #   GO_VERSION          Dockerfile.all, Dockerfile.go, scripts/check-versions.sh, scripts/update-go-version.sh
 #   GOLANGCI_VERSION    Dockerfile.all, scripts/check-versions.sh
+#   PLAYWRIGHT_VERSION  Dockerfile.all. It only picks Chromium's system libraries for OS_RELEASE:
+#                       change it together with OS_RELEASE, not with the catalog's Playwright.
 #   CACHE_DIR           Dockerfile.all, Dockerfile.go
 x-versions-args: &versions-args
   NODE_VERSION: 24.22.1
@@ -16,6 +18,7 @@ x-versions-args: &versions-args
   PNPM_VERSION: 12.16.0
   GO_VERSION: 1.27.3
   GOLANGCI_VERSION: 2.15.0
+  PLAYWRIGHT_VERSION: 1.64.1
   CACHE_DIR: /monorepo/.cache
 
 x-service-defaults: &service-defaults
@@ -88,17 +91,21 @@ services:
   # (no shell, no `pnpm run`). Where the programs come from:
   #   - Go tools: $GOPATH/bin (not `go tool`, which stays alive as a wrapper), filled by
   #     `maintenance` from the tools module (tools/)
+  #   - JS programs: the package's node_modules/.bin
   #
   # KEEP IN STEP: each of these commands is also written as a package.json script, for
   # running the repo on the host without Docker. Whenever one changes, change the other
   # in the same commit:
   #   - an app's command: its `dev:lean` script; its full-mode command (compose.full.yaml):
   #     its `dev:full` script
+  #   - a Storybook's command: its package's `storybook:dev` script
   # Intended differences:
   #   - in `dev:full`, the debuggers listen on 127.0.0.1 only: 0.0.0.0 would open them to
   #     the local network
   #   - a Go app's scripts start with `PORT=<port>`, which a service sets in its
   #     `environment`: on one host, every app would otherwise inherit the same PORT
+  #   - in `dev:full`, the JS apps' debuggers take a random port (`--inspect=0`): on one
+  #     host, a fixed port would clash between JS apps
 
   # -xdir tmp: the build writes into tmp/, inside the watched folder. Without the
   # exclusion the build would trigger the watcher and the server would start twice.
@@ -129,4 +136,24 @@ services:
         "./cmd/api",
         "::",
         "./tmp/api",
+      ]
+
+  ui-components-storybook:
+    <<: *service-defaults
+    working_dir: /monorepo/packages/ui-components
+    build:
+      dockerfile: ./Dockerfile.node
+      <<: *build-defaults
+    ports:
+      - "6006:6006"
+    command:
+      [
+        "./node_modules/.bin/storybook",
+        "dev",
+        "-p",
+        "6006",
+        "--host",
+        "0.0.0.0",
+        "--exact-port",
+        "--no-open",
       ]

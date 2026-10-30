@@ -4,14 +4,15 @@ A monorepo in pnpm workspaces and Turborepo, developed inside containers. Its ap
 
 ## Structure
 
-| Folder            | What it holds                                                                                                            |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `apps/api/`       | Go private API (chi + huma)                                                                                              |
-| `tools/`          | Go dev tools: a module with no code, outside go.work                                                                     |
-| `scripts/`        | Maintenance scripts (versions)                                                                                           |
-| `docs/guide.md`   | The rules this project follows                                                                                           |
-| `.claude/skills/` | Project skills for Claude Code: `add-package` (adding an app or package), `runbook` (day-to-day operations of the stack) |
-| `.vscode/`        | Editor settings for the attached container (Prettier as the formatter)                                                   |
+| Folder                    | What it holds                                                                                                            |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `apps/api/`               | Go private API (chi + huma)                                                                                              |
+| `packages/ui-components/` | Svelte UI components shared by the frontend apps, with their Storybook                                                   |
+| `tools/`                  | Go dev tools: a module with no code, outside go.work                                                                     |
+| `scripts/`                | Maintenance scripts (versions)                                                                                           |
+| `docs/guide.md`           | The rules this project follows                                                                                           |
+| `.claude/skills/`         | Project skills for Claude Code: `add-package` (adding an app or package), `runbook` (day-to-day operations of the stack) |
+| `.vscode/`                | Editor settings for the attached container (Prettier as the formatter)                                                   |
 
 ## Prerequisites
 
@@ -39,11 +40,12 @@ This builds the images and starts every service. The first start installs everyt
 
 ### Services
 
-| Service       | Image            | What it does                                                                                                      |
-| ------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `editing`     | `Dockerfile.all` | Runs nothing. The editor attaches here; git, the hooks, checks, tests and builds run here                         |
-| `maintenance` | `Dockerfile.all` | Installs dependencies and what the apps' tools need, generates code, then regenerates it on change                |
-| `api`         | `Dockerfile.go`  | The Go private API on port 8080, rebuilt and restarted on change; every route but `/healthz` needs `X-Api-Secret` |
+| Service                   | Image             | What it does                                                                                                      |
+| ------------------------- | ----------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `editing`                 | `Dockerfile.all`  | Runs nothing. The editor attaches here; git, the hooks, checks, tests and builds run here                         |
+| `maintenance`             | `Dockerfile.all`  | Installs dependencies and what the apps' tools need, generates code, then regenerates it on change                |
+| `api`                     | `Dockerfile.go`   | The Go private API on port 8080, rebuilt and restarted on change; every route but `/healthz` needs `X-Api-Secret` |
+| `ui-components-storybook` | `Dockerfile.node` | ui-components' Storybook on port 6006                                                                             |
 
 The app services wait for `maintenance` to be healthy. The whole repo is bind-mounted into every container at `/monorepo`. Compose starts each program directly, with no `pnpm run` in between; Turborepo runs the tasks (checks, tests, builds, code generation), not the apps.
 
@@ -57,6 +59,7 @@ docker compose -f compose.yaml -f compose.full.yaml up -d     # full: apps with 
 In full mode each app listens for a debugger, inside the Compose network only; attach from the editor (attached to `editing`) with the "(Docker)" configuration in each app's `.vscode/launch.json`. The ports:
 
 - Go apps: 2345
+- JS apps: 9229
 
 ### Working in the repo
 
@@ -64,7 +67,7 @@ Attach the editor (`./code-attach.sh`, or `./code-attach.sh apps/<app>` for one 
 
 ```bash
 pnpm turbo run lint:check format:check typecheck   # what the pre-push hook runs
-pnpm turbo run test:unit                           # unit tests
+pnpm turbo run test:unit                           # unit and story tests
 pnpm turbo run build --filter <app>
 ```
 
@@ -76,10 +79,11 @@ Commits are made in the editing service, where the hooks run: pre-commit fixes t
 
 ### Changing how an app starts
 
-Each app's start command is written twice: in `compose.yaml` (its full-mode version in `compose.full.yaml`), and as the app's `dev:lean` / `dev:full` scripts, which the host run uses. **When you change one, change the other in the same commit.** The intended differences:
+Each app's start command is written twice: in `compose.yaml` (its full-mode version in `compose.full.yaml`), and as the app's `dev:lean` / `dev:full` scripts, which the host run uses. Each Storybook's command likewise, as its package's `storybook:dev`. **When you change one, change the other in the same commit.** The intended differences:
 
 - in the full-mode scripts, the debuggers listen on `127.0.0.1`
 - a Go app's scripts set its `PORT` themselves
+- in the full-mode scripts, the JS debuggers take a random port
 
 ### Env vars and secrets
 
@@ -103,6 +107,7 @@ Every toolchain version is written once, in the build arguments at the top of `c
 | `./scripts/update-pnpm-version.sh`      | Sets the pnpm range in the root `package.json` to a new major; then restart `maintenance`     |
 | `./scripts/update-go-version.sh`        | Sets the `go` line of `go.work` and every `go.mod`                                            |
 | `./scripts/go-release-age.sh <module>…` | Prints each Go module's newest release at least 3 days old, the version to `go get`           |
+| `./scripts/update-node-types.sh`        | Moves `@types/node` to Node's major, as an exact version                                      |
 
 ## Hello world
 
@@ -117,11 +122,13 @@ Chosen per project when the need comes (see "Not decided" in `docs/guide.md`):
 - Authentication and sessions
 - CI (the rules for it are in `docs/guide.md` §9)
 - Where the Go apps are hosted in production
+- Production deployment of the frontend apps (each builds with the SvelteKit adapter chosen from its deployment target; `auto` means the target wasn't known yet)
+- UI component libraries (which ones, if any, beside hand-written components)
 - Toolchain versions: one source of truth with one bump command (for now each tool has its own `scripts/update-*.sh`, and `scripts/check-versions.sh` checks they agree)
 
 ## Quick run without Docker
 
-For a quick look only, not for development. You need Node and pnpm installed (and Go, with a Go app); their versions are not checked (the containers' are at the top of `compose.yaml`).
+For a quick look only, not for development. A Storybook runs on its own: `pnpm turbo run storybook:dev --filter <package>`. You need Node and pnpm installed (and Go, with a Go app); their versions are not checked (the containers' are at the top of `compose.yaml`).
 
 ```bash
 pnpm install
