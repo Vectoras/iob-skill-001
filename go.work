@@ -1,3 +1,6 @@
 go 1.27.3
 
-use ./apps/api
+use (
+	./apps/api
+	./packages/shared-types
+)
