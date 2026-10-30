@@ -1,3 +1,7 @@
 go 1.27.3
 
-use ./apps/catalog
+use (
+	./apps/catalog
+	./apps/worker
+	./packages/go-types
+)

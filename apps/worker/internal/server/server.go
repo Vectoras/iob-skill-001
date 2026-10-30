@@ -1,0 +1,39 @@
+// Package server builds the service's HTTP handler: middleware, routes and handlers.
+package server
+
+import (
+	"net/http"
+
+	"github.com/danielgtaylor/huma/v2"
+	"github.com/danielgtaylor/huma/v2/adapters/humachi"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+
+	"github.com/Vectoras/hello-018/apps/worker/internal/config"
+)
+
+// New returns the service's handler. chi's middleware comes first: chi panics on
+// middleware added after a route, and huma's adapter registers routes as it is created.
+// cfg is unused until a feature needs a setting.
+func New(cfg config.Config) http.Handler {
+	router := chi.NewRouter()
+	router.Use(middleware.Logger)
+	// Answered here, before the routes and any secret check: the health check needs nothing.
+	router.Use(middleware.Heartbeat("/healthz"))
+
+	register(humachi.New(router, humaConfig()))
+	return router
+}
+
+func humaConfig() huma.Config {
+	humaConfig := huma.DefaultConfig("worker", "0.0.1")
+	// No `$schema` link added to every response body.
+	humaConfig.CreateHooks = nil
+	return humaConfig
+}
+
+// register adds every route: one register<Feature>(api) call per feature, each in its
+// own file.
+func register(api huma.API) {
+	registerHelloWorldGoTypes(api)
+}

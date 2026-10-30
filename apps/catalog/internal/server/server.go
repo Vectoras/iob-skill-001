@@ -44,5 +44,5 @@ func humaConfig() huma.Config {
 // register adds every route: one register<Feature>(api) call per feature, each in its
 // own file.
 func register(api huma.API) {
-	_ = api // until the first feature registers its routes
+	registerHelloWorldGoTypes(api)
 }

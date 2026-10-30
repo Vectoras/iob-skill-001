@@ -122,3 +122,30 @@ services:
         "::",
         "./tmp/catalog",
       ]
+
+  # -xdir tmp: the build writes into tmp/, inside the watched folder. Without the
+  # exclusion the build would trigger the watcher and the server would start twice.
+  worker:
+    <<: *service-defaults
+    working_dir: /monorepo/apps/worker
+    build:
+      dockerfile: ./Dockerfile.go
+      <<: *build-defaults
+    ports:
+      # An internal service: reachable from the host's tools, not from the network.
+      - "127.0.0.1:8081:8081"
+    environment:
+      - PORT=8081
+    command:
+      [
+        "wgo",
+        "-xdir",
+        "tmp",
+        "go",
+        "build",
+        "-o",
+        "./tmp/worker",
+        "./cmd/worker",
+        "::",
+        "./tmp/worker",
+      ]

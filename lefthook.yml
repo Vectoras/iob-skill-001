@@ -12,6 +12,16 @@ pre-commit:
       glob: "*.go"
       run: golangci-lint run --fix ./... && golangci-lint fmt ./...
       stage_fixed: true
+    2-go-worker:
+      root: apps/worker/
+      glob: "*.go"
+      run: golangci-lint run --fix ./... && golangci-lint fmt ./...
+      stage_fixed: true
+    2-go-go-types:
+      root: packages/go-types/
+      glob: "*.go"
+      run: golangci-lint run --fix ./... && golangci-lint fmt ./...
+      stage_fixed: true
     9-prettier:
       glob: "*.{js,ts,svelte,json,css,md,yml,yaml,html}"
       run: pnpm exec prettier --write --ignore-unknown {staged_files}

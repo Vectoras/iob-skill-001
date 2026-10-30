@@ -1,0 +1,17 @@
+{
+  "name": "worker",
+  "private": true,
+  "scripts": {
+    "dev:lean": "PORT=8081 wgo -xdir tmp go build -o ./tmp/worker ./cmd/worker :: ./tmp/worker",
+    "dev:full": "PORT=8081 wgo -xdir tmp go build -gcflags='all=-N -l' -o ./tmp/worker ./cmd/worker :: dlv exec ./tmp/worker --headless --listen=127.0.0.1:2346 --api-version=2 --accept-multiclient --continue",
+    "build": "go build -o ./dist/worker ./cmd/worker",
+    "lint:fix": "golangci-lint run --fix ./...",
+    "lint:check": "golangci-lint run ./...",
+    "format:fix": "golangci-lint fmt ./... && prettier --write . --ignore-path ../../.gitignore --ignore-path ../../.prettierignore",
+    "format:check": "golangci-lint fmt --diff ./... && prettier --check . --ignore-path ../../.gitignore --ignore-path ../../.prettierignore",
+    "test:unit": "go test ./..."
+  },
+  "devDependencies": {
+    "go-types": "workspace:*"
+  }
+}
