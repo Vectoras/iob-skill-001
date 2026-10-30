@@ -1,0 +1,31 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+  - "e2e/*"
+
+# On the same filesystem as the repo, so pnpm can hard-link from it.
+storeDir: .cache/pnpm-store
+
+# Every container shares node_modules, so every setting pnpm fills in from the
+# environment is written here: a difference makes the containers reinstall and race.
+# pnpm 11 enabled the global virtual store outside CI only; pnpm 12 defaults it to
+# false everywhere, and otherwise uses CI only for the frozen lockfile (wanted in
+# `maintenance`), output and prompts. Pinned anyway, so a default can't move under us.
+enableGlobalVirtualStore: false
+
+# Replaces the per-package `engine-strict=true` scaffolders write into .npmrc, which
+# pnpm doesn't read (only auth, registry and network settings come from .npmrc).
+engineStrict: true
+
+# One exact version of each dependency, written once below. `pnpm add` writes
+# `catalog:` into the package and refuses a version that doesn't match.
+catalogMode: strict
+saveExact: true
+# Entries no package uses any more are removed, so a remove-and-add makes them exact.
+catalogPrune: true
+
+minimumReleaseAge: 4320 # 3 days, in minutes
+
+# Dependencies allowed to run their install scripts. Lefthook's installs the git hooks.
+allowBuilds:
+  lefthook: true
