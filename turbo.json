@@ -1,0 +1,64 @@
+{
+  "$schema": "./node_modules/turbo/schema.json",
+  "globalPassThroughEnv": [],
+  "tasks": {
+    "generate": {
+      "dependsOn": ["^generate"],
+      "inputs": ["$TURBO_DEFAULT$"],
+      "outputs": ["generated/**"]
+    },
+    "dev:lean": {
+      "dependsOn": ["^generate", "generate"],
+      "persistent": true,
+      "cache": false,
+      "passThroughEnv": []
+    },
+    "dev:full": {
+      "dependsOn": ["^generate", "generate"],
+      "persistent": true,
+      "cache": false,
+      "passThroughEnv": []
+    },
+    "storybook:dev": {
+      "dependsOn": ["^generate", "generate"],
+      "persistent": true,
+      "cache": false,
+      "passThroughEnv": []
+    },
+    "storybook:build": {
+      "dependsOn": ["^generate", "generate"],
+      "outputs": ["storybook-static/**"]
+    },
+    "build": {
+      "dependsOn": ["^generate", "generate"],
+      "outputs": ["dist/**"]
+    },
+    "typecheck": {
+      "dependsOn": ["^generate", "generate"],
+      "inputs": ["$TURBO_DEFAULT$"]
+    },
+    "test:unit": {
+      "dependsOn": ["^generate", "generate"],
+      "inputs": ["$TURBO_DEFAULT$"],
+      "passThroughEnv": []
+    },
+    "lint:fix": {
+      "cache": false
+    },
+    "lint:check": {
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/.gitignore"]
+    },
+    "format:fix": {
+      "cache": false
+    },
+    "format:check": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/.prettierrc",
+        "$TURBO_ROOT$/.prettierignore",
+        "$TURBO_ROOT$/.editorconfig",
+        "$TURBO_ROOT$/.gitignore"
+      ]
+    }
+  }
+}
