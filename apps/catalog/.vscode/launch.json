@@ -1,0 +1,21 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Attach to catalog (Docker)",
+      "type": "go",
+      "request": "attach",
+      "mode": "remote",
+      "host": "catalog",
+      "port": 2345
+    },
+    {
+      "name": "Attach to catalog (host)",
+      "type": "go",
+      "request": "attach",
+      "mode": "remote",
+      "host": "127.0.0.1",
+      "port": 2345
+    }
+  ]
+}
