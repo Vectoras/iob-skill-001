@@ -13,7 +13,8 @@
     "format:check": "turbo run format:check && pnpm run format:root:check",
     "format:root:fix": "prettier --write . \"!apps\" \"!packages\" \"!e2e\"",
     "format:root:check": "prettier --check . \"!apps\" \"!packages\" \"!e2e\"",
-    "test:unit": "turbo run test:unit"
+    "test:unit": "turbo run test:unit",
+    "openapi": "turbo run openapi"
   },
   "devEngines": {
     "packageManager": {

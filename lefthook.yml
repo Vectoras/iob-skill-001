@@ -6,6 +6,12 @@
 pre-commit:
   parallel: false
   commands:
+    # golangci-lint works per package, so one command per Go module (add one for each new Go app or package). glob + root: skipped when no .go file in that module is staged.
+    2-go-accounts:
+      root: apps/accounts/
+      glob: "*.go"
+      run: golangci-lint run --fix ./... && golangci-lint fmt ./...
+      stage_fixed: true
     9-prettier:
       glob: "*.{js,ts,svelte,json,css,md,yml,yaml,html}"
       run: pnpm exec prettier --write --ignore-unknown {staged_files}
@@ -22,3 +28,5 @@ pre-push:
     # turbo only sees packages; this covers files at the repo root.
     format-root:
       run: pnpm run format:root:check
+    # Every Go module builds the same alone as in go.work (changes nothing; fails on a drift).
+    go-sync: { run: ./scripts/check-go-sync.sh }

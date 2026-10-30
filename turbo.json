@@ -1,23 +1,28 @@
 {
   "$schema": "./node_modules/turbo/schema.json",
-  "globalPassThroughEnv": [],
+  "globalPassThroughEnv": [
+    "GOPATH",
+    "GOCACHE",
+    "GOLANGCI_LINT_CACHE",
+    "GOTOOLCHAIN"
+  ],
   "tasks": {
     "generate": {
       "dependsOn": ["^generate"],
-      "inputs": ["$TURBO_DEFAULT$"],
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/tools/go.mod"],
       "outputs": ["generated/**"]
     },
     "dev:lean": {
       "dependsOn": ["^generate", "generate"],
       "persistent": true,
       "cache": false,
-      "passThroughEnv": []
+      "passThroughEnv": ["ACCOUNTS_SECRET"]
     },
     "dev:full": {
       "dependsOn": ["^generate", "generate"],
       "persistent": true,
       "cache": false,
-      "passThroughEnv": []
+      "passThroughEnv": ["ACCOUNTS_SECRET"]
     },
     "storybook:dev": {
       "dependsOn": ["^generate", "generate"],
@@ -42,11 +47,18 @@
       "inputs": ["$TURBO_DEFAULT$"],
       "passThroughEnv": []
     },
+    "openapi": {
+      "outputs": ["generated/**"]
+    },
     "lint:fix": {
       "cache": false
     },
     "lint:check": {
-      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/.gitignore"]
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/.gitignore",
+        "$TURBO_ROOT$/.golangci.yml"
+      ]
     },
     "format:fix": {
       "cache": false
@@ -57,7 +69,8 @@
         "$TURBO_ROOT$/.prettierrc",
         "$TURBO_ROOT$/.prettierignore",
         "$TURBO_ROOT$/.editorconfig",
-        "$TURBO_ROOT$/.gitignore"
+        "$TURBO_ROOT$/.gitignore",
+        "$TURBO_ROOT$/.golangci.yml"
       ]
     }
   }

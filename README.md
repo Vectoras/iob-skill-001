@@ -6,6 +6,8 @@ A monorepo in pnpm workspaces and Turborepo, developed inside containers. Its ap
 
 | Folder            | What it holds                                                                                                            |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `apps/accounts/`  | Go private API (chi + huma)                                                                                              |
+| `tools/`          | Go dev tools: a module with no code, outside go.work                                                                     |
 | `scripts/`        | Maintenance scripts (versions)                                                                                           |
 | `docs/guide.md`   | The rules this project follows                                                                                           |
 | `.claude/skills/` | Project skills for Claude Code: `add-package` (adding an app or package), `runbook` (day-to-day operations of the stack) |
@@ -21,6 +23,14 @@ Only want to try it, without Docker? See [Quick run without Docker](#quick-run-w
 
 ## Getting started
 
+A fresh clone first needs each app's secrets file (gitignored), from its committed example:
+
+```bash
+for f in apps/*/.env.example; do cp "$f" "${f%.example}"; done
+```
+
+A secret shared between apps has the same name in each of their files (a private API's `<API>_SECRET`, in the API and in every frontend app) and must have the same value; replace `change-me` with a random value (`head -c 32 /dev/urandom | base64`) if the stack is reachable by anyone else. Then:
+
 ```bash
 docker compose up -d
 ```
@@ -29,10 +39,11 @@ This builds the images and starts every service. The first start installs everyt
 
 ### Services
 
-| Service       | Image            | What it does                                                                                       |
-| ------------- | ---------------- | -------------------------------------------------------------------------------------------------- |
-| `editing`     | `Dockerfile.all` | Runs nothing. The editor attaches here; git, the hooks, checks, tests and builds run here          |
-| `maintenance` | `Dockerfile.all` | Installs dependencies and what the apps' tools need, generates code, then regenerates it on change |
+| Service       | Image            | What it does                                                                                                      |
+| ------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `editing`     | `Dockerfile.all` | Runs nothing. The editor attaches here; git, the hooks, checks, tests and builds run here                         |
+| `maintenance` | `Dockerfile.all` | Installs dependencies and what the apps' tools need, generates code, then regenerates it on change                |
+| `accounts`    | `Dockerfile.go`  | The Go private API on port 8080, rebuilt and restarted on change; every route but `/healthz` needs `X-Api-Secret` |
 
 The app services wait for `maintenance` to be healthy. The whole repo is bind-mounted into every container at `/monorepo`. Compose starts each program directly, with no `pnpm run` in between; Turborepo runs the tasks (checks, tests, builds, code generation), not the apps.
 
@@ -44,6 +55,8 @@ docker compose -f compose.yaml -f compose.full.yaml up -d     # full: apps with 
 ```
 
 In full mode each app listens for a debugger, inside the Compose network only; attach from the editor (attached to `editing`) with the "(Docker)" configuration in each app's `.vscode/launch.json`. The ports:
+
+- Go apps: 2345
 
 ### Working in the repo
 
@@ -57,24 +70,39 @@ pnpm turbo run build --filter <app>
 
 Commits are made in the editing service, where the hooks run: pre-commit fixes the staged files, pre-push checks (no tests: those are for CI).
 
+### OpenAPI descriptions
+
+`pnpm openapi` writes each API's OpenAPI description to `apps/<api>/generated/openapi.yaml` (OpenAPI 3.1) and `openapi-3.0.yaml` (3.0), for Postman and other API clients. They are gitignored and built from the code, so run it again after a change. A private API's description asks for its `X-Api-Secret`.
+
 ### Changing how an app starts
 
 Each app's start command is written twice: in `compose.yaml` (its full-mode version in `compose.full.yaml`), and as the app's `dev:lean` / `dev:full` scripts, which the host run uses. **When you change one, change the other in the same commit.** The intended differences:
 
 - in the full-mode scripts, the debuggers listen on `127.0.0.1`
+- a Go app's scripts set its `PORT` themselves
 
 ### Env vars and secrets
 
 Compose injects every variable. Non-secret values are in `compose.yaml`; secrets in each app's gitignored `.env`, listed with dummy values in its committed `.env.example`. There is no root `.env`.
 
+### Go dev tools
+
+The Go dev tools (wgo, Delve, and tygo once `packages/shared-types` exists) are listed in `tools/go.mod`, a module with no code, kept out of `go.work` so the tools' dependencies never change the apps' versions. `maintenance` installs them into `$GOPATH/bin`, and everything calls them by name. Every command in `tools/` needs `GOWORK=off`.
+
+### Go modules in sync
+
+Inside `go.work`, Go builds every module with the highest version any module asks for; a module built on its own (a production image) uses only its own `go.mod`. `./scripts/check-go-sync.sh` reports any module that would build differently on its own, with the fix (`go work sync`, then `GOWORK=off go mod tidy` in each module it names). It also reports a local module a `go.mod` replaces but its `package.json` doesn't list as a workspace dependency: Turborepo reads only `package.json`, and would replay the module's cached checks and tests after a change in the module it uses. It changes nothing, and runs in the pre-push hook.
+
 ### Tool versions
 
 Every toolchain version is written once, in the build arguments at the top of `compose.yaml`. Change one there by hand, rebuild (`docker compose up -d --build`), then run the matching script inside `editing`:
 
-| Script                             | What it does                                                                                  |
-| ---------------------------------- | --------------------------------------------------------------------------------------------- |
-| `./scripts/check-versions.sh`      | Changes nothing. Reports everything out of step with `compose.yaml` and which script fixes it |
-| `./scripts/update-pnpm-version.sh` | Sets the pnpm range in the root `package.json` to a new major; then restart `maintenance`     |
+| Script                                  | What it does                                                                                  |
+| --------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `./scripts/check-versions.sh`           | Changes nothing. Reports everything out of step with `compose.yaml` and which script fixes it |
+| `./scripts/update-pnpm-version.sh`      | Sets the pnpm range in the root `package.json` to a new major; then restart `maintenance`     |
+| `./scripts/update-go-version.sh`        | Sets the `go` line of `go.work` and every `go.mod`                                            |
+| `./scripts/go-release-age.sh <module>…` | Prints each Go module's newest release at least 3 days old, the version to `go get`           |
 
 ## Hello world
 
@@ -88,6 +116,7 @@ Chosen per project when the need comes (see "Not decided" in `docs/guide.md`):
 - Logging and error response shapes
 - Authentication and sessions
 - CI (the rules for it are in `docs/guide.md` §9)
+- Where the Go apps are hosted in production
 - Toolchain versions: one source of truth with one bump command (for now each tool has its own `scripts/update-*.sh`, and `scripts/check-versions.sh` checks they agree)
 
 ## Quick run without Docker
@@ -96,6 +125,10 @@ For a quick look only, not for development. You need Node and pnpm installed (an
 
 ```bash
 pnpm install
+(cd tools && GOWORK=off go install tool)    # the Go dev tools
+export PATH="$PATH:$(go env GOPATH)/bin"    # if Go's bin folder isn't on your PATH yet
+for f in apps/*/.env.example; do cp -n "$f" "${f%.example}"; done
+set -a; for f in apps/*/.env; do . "$f"; done; set +a    # every app's secrets
 pnpm dev:lean     # or: pnpm dev:full, with the debuggers on
 ```
 

@@ -22,6 +22,29 @@ RUN npm install -g --allow-scripts=pnpm pnpm@${PNPM_VERSION}
 # Each ecosystem's toolchain goes here, added with the project's first app of that
 # kind. Installs that need root stay above USER.
 
+# --- Go: the toolchain and its linter ---
+ARG GO_VERSION=
+ARG GOLANGCI_VERSION=
+# Set by Docker to the architecture being built for (amd64, arm64).
+ARG TARGETARCH
+# Go's module and build caches live in the bind-mounted repo, so they survive the
+# container and are shared by every service. $GOPATH/bin is where `go install` puts
+# tools. Same paths in Dockerfile.go.
+ENV GOPATH="${CACHE_DIR}/go"
+ENV GOCACHE="${CACHE_DIR}/go-build"
+# golangci-lint's cache too: in the image's home folder it would go with the container,
+# and the first lint after a `docker compose down` would start cold.
+ENV GOLANGCI_LINT_CACHE="${CACHE_DIR}/golangci-lint"
+ENV PATH="$PATH:/usr/local/go/bin"
+ENV PATH="$PATH:$GOPATH/bin"
+# Only the Go this image installs is ever used. If the Go files ask for a newer one,
+# Go fails instead of downloading another toolchain. Same in Dockerfile.go.
+ENV GOTOOLCHAIN=local
+# Go from its official archive, unpacked to /usr/local/go.
+RUN curl -fsSL https://go.dev/dl/go${GO_VERSION}.linux-${TARGETARCH}.tar.gz | tar -C /usr/local -xz
+# The Go linter as a released binary, as its documentation asks, not as a Go tool dependency.
+RUN curl -sSfL https://golangci-lint.run/install.sh | sh -s -- -b /usr/local/bin v${GOLANGCI_VERSION}
+
 # The non-root user that the Node image provides (id 1000). Files created in the
 # bind mount get this owner, so every image has to run as the same id.
 USER node

@@ -1,0 +1,15 @@
+version: "2"
+
+# Turborepo lints the Go modules at the same time, one instance each. The lock
+# only stops duplicate runs, which Turborepo already prevents; the cache is safe
+# to share. Without this, an instance that finds the lock taken fails.
+run:
+  allow-parallel-runners: true
+
+# The standard set: a starting point, not a limit.
+linters:
+  default: standard
+
+formatters:
+  enable:
+    - gofmt
