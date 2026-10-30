@@ -1,0 +1,15 @@
+# Full mode: every app runs with its debugger on. Storybooks keep their lean command.
+# Every app calls its program directly, as in compose.yaml.
+# KEEP IN STEP: each command here is also the app's `dev:full` script in its
+# package.json; change both in the same commit. The scripts differ on purpose in the
+# debugger's address and a Go app's PORT (see the note in compose.yaml).
+# Debugger ports are not published: attach from the editing service, by service name.
+# Environment entries here are merged with compose.yaml's, by name.
+# Start with: docker compose -f compose.yaml -f compose.full.yaml up -d
+# Back to lean: docker compose up -d
+
+services:
+  web:
+    environment:
+      - NODE_OPTIONS=--inspect=0.0.0.0:9229
+    command: ["./node_modules/.bin/vite", "dev"]
