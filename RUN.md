@@ -43,4 +43,4 @@ Grading also covered the runbook's stop, take down and bring back: 14 of 15 pass
 
 ## Verdict
 
-**Fail**: check 12 fails, and the committed tree was never tested without the leftover files.
+**Fail**: check 12 failed, because the creation couldn't delete the leftover files. The person deleted them by hand afterwards, with nothing committed. Graded again without them: every check passes, and the committed tree holds up alone (type check, lint, format check, build, unit, story and end-to-end tests).
