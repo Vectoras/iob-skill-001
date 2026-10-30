@@ -1,0 +1,24 @@
+{
+  "name": "shared-types",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "generate": "tygo generate",
+    "typecheck": "tsc --noEmit",
+    "lint:fix": "golangci-lint run --fix ./... && eslint . --fix",
+    "lint:check": "golangci-lint run ./... && eslint .",
+    "format:fix": "golangci-lint fmt ./... && prettier --write . --ignore-path ../../.gitignore --ignore-path ../../.prettierignore",
+    "format:check": "golangci-lint fmt --diff ./... && prettier --check . --ignore-path ../../.gitignore --ignore-path ../../.prettierignore",
+    "test:unit": "go test ./... && vitest run"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "dependencies": {
+    "zod": "catalog:"
+  }
+}

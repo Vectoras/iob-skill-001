@@ -1,0 +1,13 @@
+# tygo, run by the `generate` script from this folder: paths resolve from here.
+# The output folder is gitignored; src/index.ts exports it with the hand-written code.
+packages:
+  - path: "github.com/Vectoras/hello-020/packages/shared-types"
+    output_path: "./generated"
+    indent: "  "
+    # With no Go types yet, tygo writes only a comment, which TypeScript refuses to
+    # re-export ("is not a module"); this line keeps the file a module either way.
+    frontmatter: |
+      export {};
+    # Types with no direct TS equivalent are mapped explicitly.
+    type_mappings:
+      time.Time: "string /* RFC3339 */"

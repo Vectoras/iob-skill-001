@@ -48,6 +48,12 @@ services:
       dockerfile: ./Dockerfile.all
       <<: *build-defaults
     depends_on: {}
+    # Each frontend app's variables, for its tests run here: every process that runs an app's code gets the app's variables (docs/guide.md §3). SvelteKit writes the values of src/env.ts's variables into .svelte-kit/generated/dev/env/, shared by every process that runs the app's Vite config (the app, its Storybook, its tests); one run without them overwrites it, and the running app then fails every request with env_invalid. Secrets: SvelteKit reads the app's .env itself. Keep these the same as the apps'.
+    environment:
+      - ACCOUNTS_URL=http://accounts:8080
+      - ORDERS_URL=http://orders:8081
+      # Where the end-to-end tests find each frontend app (by service name).
+      - SHOP_URL=http://shop:5173
     command: ["sleep", "infinity"]
 
   # Prepares what the other services need, then keeps it up to date:
@@ -74,7 +80,7 @@ services:
       [
         "sh",
         "-c",
-        "rm -f /tmp/ready && pnpm install && GOWORK=off go -C tools install tool && pnpm turbo run generate && touch /tmp/ready && exec pnpm turbo watch generate",
+        "rm -f /tmp/ready && pnpm install && GOWORK=off go -C tools install tool && pnpm --filter shop-e2e exec playwright install --only-shell chromium && pnpm turbo run generate && touch /tmp/ready && exec pnpm turbo watch generate",
       ]
     # Healthy once the marker exists. Checked every second while starting, so the
     # app services start as soon as step 3 is reached.
@@ -183,6 +189,50 @@ services:
         "dev",
         "-p",
         "6006",
+        "--host",
+        "0.0.0.0",
+        "--exact-port",
+        "--no-open",
+      ]
+
+  # Host, port and allowed hosts are in vite.config.ts (every interface; `shop` for
+  # the end-to-end tests, which call it by service name).
+  shop:
+    <<: *service-defaults
+    working_dir: /monorepo/apps/shop
+    build:
+      dockerfile: ./Dockerfile.node
+      <<: *build-defaults
+    ports:
+      - "5173:5173"
+    environment:
+      - ACCOUNTS_URL=http://accounts:8080
+      - ORDERS_URL=http://orders:8081
+    env_file: apps/shop/.env
+    command: ["./node_modules/.bin/vite", "dev"]
+
+  # Storybook listens on 127.0.0.1 unless told otherwise; --exact-port fails instead
+  # of moving to another port. It runs the app's Vite config, so it gets every variable
+  # the app gets, the same as `shop`: without them, starting Storybook breaks the
+  # running app.
+  shop-storybook:
+    <<: *service-defaults
+    working_dir: /monorepo/apps/shop
+    build:
+      dockerfile: ./Dockerfile.node
+      <<: *build-defaults
+    ports:
+      - "6007:6007"
+    environment:
+      - ACCOUNTS_URL=http://accounts:8080
+      - ORDERS_URL=http://orders:8081
+    env_file: apps/shop/.env
+    command:
+      [
+        "./node_modules/.bin/storybook",
+        "dev",
+        "-p",
+        "6007",
         "--host",
         "0.0.0.0",
         "--exact-port",

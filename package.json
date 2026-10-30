@@ -14,6 +14,7 @@
     "format:root:fix": "prettier --write . \"!apps\" \"!packages\" \"!e2e\"",
     "format:root:check": "prettier --check . \"!apps\" \"!packages\" \"!e2e\"",
     "test:unit": "turbo run test:unit",
+    "test:e2e": "turbo run test:e2e",
     "openapi": "turbo run openapi"
   },
   "devEngines": {

@@ -17,19 +17,34 @@
       "dependsOn": ["^generate", "generate"],
       "persistent": true,
       "cache": false,
-      "passThroughEnv": ["ACCOUNTS_SECRET", "ORDERS_SECRET"]
+      "passThroughEnv": [
+        "ACCOUNTS_SECRET",
+        "ORDERS_SECRET",
+        "ACCOUNTS_URL",
+        "ORDERS_URL"
+      ]
     },
     "dev:full": {
       "dependsOn": ["^generate", "generate"],
       "persistent": true,
       "cache": false,
-      "passThroughEnv": ["ACCOUNTS_SECRET", "ORDERS_SECRET"]
+      "passThroughEnv": [
+        "ACCOUNTS_SECRET",
+        "ORDERS_SECRET",
+        "ACCOUNTS_URL",
+        "ORDERS_URL"
+      ]
     },
     "storybook:dev": {
       "dependsOn": ["^generate", "generate"],
       "persistent": true,
       "cache": false,
-      "passThroughEnv": []
+      "passThroughEnv": [
+        "ACCOUNTS_URL",
+        "ACCOUNTS_SECRET",
+        "ORDERS_URL",
+        "ORDERS_SECRET"
+      ]
     },
     "storybook:build": {
       "dependsOn": ["^generate", "generate"],
@@ -39,6 +54,10 @@
       "dependsOn": ["^generate", "generate"],
       "outputs": ["dist/**"]
     },
+    "shop#build": {
+      "dependsOn": ["^generate", "generate"],
+      "outputs": [".svelte-kit/output/**"]
+    },
     "typecheck": {
       "dependsOn": ["^generate", "generate"],
       "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/tsconfig.base.json"]
@@ -46,7 +65,16 @@
     "test:unit": {
       "dependsOn": ["^generate", "generate"],
       "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/tsconfig.base.json"],
-      "passThroughEnv": []
+      "passThroughEnv": [
+        "ACCOUNTS_URL",
+        "ACCOUNTS_SECRET",
+        "ORDERS_URL",
+        "ORDERS_SECRET"
+      ]
+    },
+    "test:e2e": {
+      "dependsOn": ["^generate", "generate"],
+      "env": ["SHOP_URL"]
     },
     "openapi": {
       "outputs": ["generated/**"]
