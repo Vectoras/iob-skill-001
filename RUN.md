@@ -39,7 +39,7 @@ Run during the creation (step 10), then graded again afterwards (full mode inclu
 | 15 | Hooks | pass |
 | 16 | OpenAPI descriptions | skipped: no API |
 
-Grading also covered the runbook's stop, take down and bring back: 13 of 14 pass; the other is the same untracked files.
+Grading also covered the runbook's stop, take down and bring back: 14 of 15 pass; the other is the same untracked files.
 
 ## Verdict
 
