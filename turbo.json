@@ -4,7 +4,8 @@
     "GOPATH",
     "GOCACHE",
     "GOLANGCI_LINT_CACHE",
-    "GOTOOLCHAIN"
+    "GOTOOLCHAIN",
+    "PLAYWRIGHT_BROWSERS_PATH"
   ],
   "tasks": {
     "generate": {
@@ -40,11 +41,11 @@
     },
     "typecheck": {
       "dependsOn": ["^generate", "generate"],
-      "inputs": ["$TURBO_DEFAULT$"]
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/tsconfig.base.json"]
     },
     "test:unit": {
       "dependsOn": ["^generate", "generate"],
-      "inputs": ["$TURBO_DEFAULT$"],
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/tsconfig.base.json"],
       "passThroughEnv": []
     },
     "openapi": {
@@ -57,7 +58,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/.gitignore",
-        "$TURBO_ROOT$/.golangci.yml"
+        "$TURBO_ROOT$/.golangci.yml",
+        "$TURBO_ROOT$/eslint.config.js"
       ]
     },
     "format:fix": {
