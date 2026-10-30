@@ -4,14 +4,16 @@ A monorepo in pnpm workspaces and Turborepo, developed inside containers. Its ap
 
 ## Structure
 
-| Folder            | What it holds                                                                                                            |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `apps/accounts/`  | Go private API (chi + huma)                                                                                              |
-| `tools/`          | Go dev tools: a module with no code, outside go.work                                                                     |
-| `scripts/`        | Maintenance scripts (versions)                                                                                           |
-| `docs/guide.md`   | The rules this project follows                                                                                           |
-| `.claude/skills/` | Project skills for Claude Code: `add-package` (adding an app or package), `runbook` (day-to-day operations of the stack) |
-| `.vscode/`        | Editor settings for the attached container (Prettier as the formatter)                                                   |
+| Folder               | What it holds                                                                                                            |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `apps/accounts/`     | Go private API (chi + huma)                                                                                              |
+| `apps/orders/`       | Go private API (chi + huma)                                                                                              |
+| `packages/go-types/` | Types shared between the Go apps (Go module)                                                                             |
+| `tools/`             | Go dev tools: a module with no code, outside go.work                                                                     |
+| `scripts/`           | Maintenance scripts (versions)                                                                                           |
+| `docs/guide.md`      | The rules this project follows                                                                                           |
+| `.claude/skills/`    | Project skills for Claude Code: `add-package` (adding an app or package), `runbook` (day-to-day operations of the stack) |
+| `.vscode/`           | Editor settings for the attached container (Prettier as the formatter)                                                   |
 
 ## Prerequisites
 
@@ -44,6 +46,7 @@ This builds the images and starts every service. The first start installs everyt
 | `editing`     | `Dockerfile.all` | Runs nothing. The editor attaches here; git, the hooks, checks, tests and builds run here                         |
 | `maintenance` | `Dockerfile.all` | Installs dependencies and what the apps' tools need, generates code, then regenerates it on change                |
 | `accounts`    | `Dockerfile.go`  | The Go private API on port 8080, rebuilt and restarted on change; every route but `/healthz` needs `X-Api-Secret` |
+| `orders`      | `Dockerfile.go`  | The Go private API on port 8081, rebuilt and restarted on change; every route but `/healthz` needs `X-Api-Secret` |
 
 The app services wait for `maintenance` to be healthy. The whole repo is bind-mounted into every container at `/monorepo`. Compose starts each program directly, with no `pnpm run` in between; Turborepo runs the tasks (checks, tests, builds, code generation), not the apps.
 

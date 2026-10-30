@@ -16,13 +16,13 @@
       "dependsOn": ["^generate", "generate"],
       "persistent": true,
       "cache": false,
-      "passThroughEnv": ["ACCOUNTS_SECRET"]
+      "passThroughEnv": ["ACCOUNTS_SECRET", "ORDERS_SECRET"]
     },
     "dev:full": {
       "dependsOn": ["^generate", "generate"],
       "persistent": true,
       "cache": false,
-      "passThroughEnv": ["ACCOUNTS_SECRET"]
+      "passThroughEnv": ["ACCOUNTS_SECRET", "ORDERS_SECRET"]
     },
     "storybook:dev": {
       "dependsOn": ["^generate", "generate"],
