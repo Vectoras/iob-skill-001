@@ -6,3 +6,6 @@ docs/guide.md
 
 # Templates with placeholders: not valid files until filled in
 .claude/skills/add-package/templates/
+
+# Written by Go while scripts/check-go-sync.sh runs, and removed when it exits. The pre-push hook runs that script beside the root format check: Prettier would list the file, then fail to read it once it is gone.
+go.work.sum

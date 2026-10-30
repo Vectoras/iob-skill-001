@@ -1,0 +1,15 @@
+{
+  "name": "api",
+  "private": true,
+  "scripts": {
+    "dev:lean": "PORT=8080 wgo -xdir tmp -xdir generated go build -o ./tmp/api ./cmd/api :: ./tmp/api",
+    "dev:full": "PORT=8080 wgo -xdir tmp -xdir generated go build -gcflags='all=-N -l' -o ./tmp/api ./cmd/api :: dlv exec ./tmp/api --headless --listen=127.0.0.1:2345 --api-version=2 --accept-multiclient --continue",
+    "build": "go build -o ./dist/api ./cmd/api",
+    "openapi": "go run ./cmd/openapi",
+    "lint:fix": "golangci-lint run --fix ./...",
+    "lint:check": "golangci-lint run ./...",
+    "format:fix": "golangci-lint fmt ./... && prettier --write . --ignore-path ../../.gitignore --ignore-path ../../.prettierignore",
+    "format:check": "golangci-lint fmt --diff ./... && prettier --check . --ignore-path ../../.gitignore --ignore-path ../../.prettierignore",
+    "test:unit": "go test ./..."
+  }
+}
